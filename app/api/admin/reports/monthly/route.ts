@@ -3,6 +3,20 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 
+type AttendanceReportRow = {
+  id: string;
+  userId: string;
+  date: string;
+  checkInAt: Date | null;
+  checkOutAt: Date | null;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
 export async function GET(request: Request) {
   const session = await getSession();
 
@@ -16,7 +30,7 @@ export async function GET(request: Request) {
   const start = `${year}-${String(monthNumber).padStart(2, "0")}-01`;
   const end = new Date(year, monthNumber, 0).toISOString().slice(0, 10);
 
-  const records = await prisma.attendance.findMany({
+  const records = (await prisma.attendance.findMany({
     where: {
       date: {
         gte: start,
@@ -35,7 +49,7 @@ export async function GET(request: Request) {
     orderBy: {
       date: "asc",
     },
-  });
+  })) as AttendanceReportRow[];
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Attendance");
@@ -49,7 +63,7 @@ export async function GET(request: Request) {
     { header: "Hours", key: "hours", width: 15 },
   ];
 
-  records.forEach((record) => {
+  records.forEach((record: AttendanceReportRow) => {
     const checkIn = record.checkInAt ? new Date(record.checkInAt).toLocaleTimeString() : "--";
     const checkOut = record.checkOutAt ? new Date(record.checkOutAt).toLocaleTimeString() : "--";
 
