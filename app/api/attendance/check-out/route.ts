@@ -5,8 +5,8 @@ import { NextResponse } from "next/server";
 export async function POST() {
   const session = await getSession();
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session || session.role !== "AGENT") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   const today = new Date().toISOString().slice(0, 10);
@@ -21,26 +21,18 @@ export async function POST() {
     },
   });
 
-  if (record && record.checkInAt) {
-    return NextResponse.json({ error: "You already checked in today" }, { status: 400 });
+  if (!record?.checkInAt) {
+    return NextResponse.json({ error: "Check in before checking out" }, { status: 400 });
   }
 
-  if (record) {
-    const updated = await prisma.attendance.update({
-      where: { id: record.id },
-      data: { checkInAt: now },
-    });
-
-    return NextResponse.json({ message: "Checked in successfully", record: updated });
+  if (record.checkOutAt) {
+    return NextResponse.json({ error: "You already checked out today" }, { status: 400 });
   }
 
-  const created = await prisma.attendance.create({
-    data: {
-      userId: session.userId,
-      date: today,
-      checkInAt: now,
-    },
+  const updated = await prisma.attendance.update({
+    where: { id: record.id },
+    data: { checkOutAt: now },
   });
 
-  return NextResponse.json({ message: "Checked in successfully", record: created });
+  return NextResponse.json({ message: "Checked out successfully", record: updated });
 }

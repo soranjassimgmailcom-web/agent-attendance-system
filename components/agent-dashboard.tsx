@@ -13,24 +13,32 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
   const [todayRecord, setTodayRecord] = useState<AttendanceEntry | null>(null);
   const [history, setHistory] = useState<AttendanceEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   async function loadData() {
-    const [statusResponse, historyResponse] = await Promise.all([
-      fetch("/api/attendance/status", { credentials: "include" }),
-      fetch("/api/attendance/history", { credentials: "include" }),
-    ]);
+    try {
+      const [statusResponse, historyResponse] = await Promise.all([
+        fetch("/api/attendance/status", { credentials: "include" }),
+        fetch("/api/attendance/history", { credentials: "include" }),
+      ]);
 
-    const statusData = await statusResponse.json();
-    const historyData = await historyResponse.json();
+      const [statusData, historyData] = await Promise.all([
+        statusResponse.json(),
+        historyResponse.json(),
+      ]);
 
-    if (statusResponse.ok) {
+      if (!statusResponse.ok || !historyResponse.ok) {
+        throw new Error(statusData.error || historyData.error || "Could not load attendance");
+      }
+
       setTodayRecord(statusData.record);
-    }
-
-    if (historyResponse.ok) {
       setHistory(historyData.records || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load attendance");
+    } finally {
+      setLoadingData(false);
     }
   }
 
@@ -43,25 +51,26 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
     setMessage("");
     setError("");
 
-    const response = await fetch(`/api/attendance/${type}`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(`/api/attendance/${type}`, {
+        method: "POST",
+        credentials: "include",
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      setError(data.error || "Action failed");
+      if (!response.ok) {
+        throw new Error(data.error || "Action failed");
+      }
+
+      setMessage(type === "check-in" ? "You're checked in. Have a great day!" : "You're checked out. Your day is recorded.");
+      setError("");
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Action failed");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setMessage(data.message || "Success");
-    await loadData();
-    setLoading(false);
   }
 
   async function handleLogout() {
@@ -73,7 +82,7 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
     <main className="dashboard-shell">
       <header className="topbar">
         <div className="brand-inline">
-          <img src="/logo.svg" alt="company logo" width={60} height={45} />
+          <span className="brand-name">BARDARASH <span>ATTENDANCE</span></span>
           <div>
             <p className="eyebrow">Agent Dashboard</p>
             <h1>Welcome, {user.name}</h1>
@@ -88,17 +97,18 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
         <div className="panel action-panel">
           <h2>Today</h2>
           <p className="status-line">
-            Check-in status: <strong>{todayRecord?.checkInAt ? "Checked In" : "Not checked in"}</strong>
+            Check-in status: <strong>{loadingData ? "Loading..." : todayRecord?.checkInAt ? "Checked In" : "Not checked in"}</strong>
           </p>
+          {todayRecord?.checkOutAt ? <p className="status-line">You have completed today&apos;s attendance.</p> : null}
 
-          {message ? <p className="success-text">{message}</p> : null}
-          {error ? <p className="error-text">{error}</p> : null}
+          {message ? <p className="success-text" role="status">{message}</p> : null}
+          {error ? <p className="error-text" role="alert">{error}</p> : null}
 
           <div className="button-row">
             <button
               className="primary-btn"
               onClick={() => handleAction("check-in")}
-              disabled={loading || !!todayRecord?.checkInAt}
+              disabled={loading || loadingData || !!todayRecord?.checkInAt}
             >
               {loading ? "Processing..." : "Check In"}
             </button>
@@ -106,7 +116,7 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
             <button
               className="secondary-btn"
               onClick={() => handleAction("check-out")}
-              disabled={loading || !todayRecord?.checkInAt || !!todayRecord?.checkOutAt}
+              disabled={loading || loadingData || !todayRecord?.checkInAt || !!todayRecord?.checkOutAt}
             >
               {loading ? "Processing..." : "Check Out"}
             </button>
