@@ -3,6 +3,20 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 
+type AttendanceHistoryRow = {
+  id: string;
+  userId: string;
+  date: string;
+  checkInAt: Date | null;
+  checkOutAt: Date | null;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
 export async function GET(request: Request) {
   const session = await getSession();
 
@@ -16,7 +30,7 @@ export async function GET(request: Request) {
   const start = `${year}-${String(monthNumber).padStart(2, "0")}-01`;
   const end = new Date(year, monthNumber, 0).toISOString().slice(0, 10);
 
-  const records = await prisma.attendance.findMany({
+  const records = (await prisma.attendance.findMany({
     where: {
       date: {
         gte: start,
@@ -35,7 +49,7 @@ export async function GET(request: Request) {
     orderBy: {
       date: "asc",
     },
-  });
+  })) as AttendanceHistoryRow[];
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Attendance");
@@ -49,16 +63,18 @@ export async function GET(request: Request) {
     { header: "Hours", key: "hours", width: 15 },
   ];
 
-  records.forEach((record) => {
+  records.forEach((record: AttendanceHistoryRow) => {
     const checkIn = record.checkInAt ? new Date(record.checkInAt).toLocaleTimeString() : "--";
     const checkOut = record.checkOutAt ? new Date(record.checkOutAt).toLocaleTimeString() : "--";
+
     const totalMinutes =
       record.checkInAt && record.checkOutAt
         ? Math.max(0, (new Date(record.checkOutAt).getTime() - new Date(record.checkInAt).getTime()) / 60000)
         : 0;
+
     const hours = Math.floor(totalMinutes / 60);
     const minutes = Math.floor(totalMinutes % 60);
-    const text = totalMinutes > 0 ? `${hours}h ${minutes}m` : "--";
+    const hoursText = totalMinutes > 0 ? `${hours}h ${minutes}m` : "--";
 
     sheet.addRow({
       name: record.user.name,
@@ -66,7 +82,7 @@ export async function GET(request: Request) {
       date: record.date,
       checkIn,
       checkOut,
-      hours: text,
+      hours: hoursText,
     });
   });
 
