@@ -42,10 +42,11 @@ export function AuthForm() {
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <label>
-        Email
+        Email address
         <input
           type="email"
           autoComplete="username"
+          placeholder="name@company.com"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           required
@@ -57,6 +58,7 @@ export function AuthForm() {
         <input
           type="password"
           autoComplete="current-password"
+          placeholder="Enter password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
@@ -65,8 +67,8 @@ export function AuthForm() {
 
       {error ? <p className="error-text">{error}</p> : null}
 
-      <button className="primary-btn" type="submit" disabled={loading}>
-        {loading ? "Logging in..." : "Login"}
+      <button className="primary-btn login-submit" type="submit" disabled={loading}>
+        {loading ? "Signing in..." : "LOGIN"}
       </button>
     </form>
   );

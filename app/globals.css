@@ -258,6 +258,128 @@ h1 {
   color: var(--muted);
 }
 
+.reference-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: #f5f6f8;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #242424;
+}
+
+.reference-login-wrap {
+  width: min(100%, 1050px);
+  margin: 0 auto;
+}
+
+.reference-brand {
+  margin: 8px auto 22px;
+  text-align: center;
+}
+
+.reference-brand-image {
+  display: block;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+  border-radius: 12px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.reference-brand h1 {
+  max-width: none;
+  margin: 10px 0 2px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(23px, 4vw, 32px);
+  line-height: 1.2;
+  font-weight: 700;
+  color: #242424;
+}
+
+.reference-brand p {
+  margin: 0;
+  color: #737373;
+}
+
+.reference-login-card {
+  width: min(100%, 430px);
+  margin: 14px auto;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 18px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.03);
+}
+
+.reference-login-card h2 {
+  margin: 0 0 6px;
+  font-size: 23px;
+}
+
+.reference-login-copy {
+  margin: 0;
+  color: #737373;
+}
+
+.reference-login-card .auth-form {
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.reference-login-card .auth-form label {
+  gap: 5px;
+  font-weight: 700;
+}
+
+.reference-login-card .auth-form input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d7d7d7;
+  border-radius: 10px;
+  background: #fff;
+  color: #242424;
+}
+
+.reference-login-card .auth-form input:focus {
+  border-color: #c8a94e;
+  outline: 2px solid rgba(200, 169, 78, 0.2);
+}
+
+.reference-login-card .login-submit {
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #c8a94e;
+  color: #fff;
+}
+
+.reference-login-card .login-submit:hover {
+  background: #b99a43;
+}
+
+.reference-login-card .error-text {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .reference-login-page {
+    padding: 12px;
+  }
+
+  .reference-login-card {
+    padding: 17px;
+  }
+
+  .reference-brand-image {
+    width: 112px;
+    height: 112px;
+  }
+}
+
 .auth-form,
 .stack-form {
   display: flex;

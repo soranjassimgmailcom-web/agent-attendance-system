@@ -52,9 +52,8 @@ export async function GET(request: Request) {
   })) as AttendanceReportRow[];
 
   const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet("Attendance");
-
-  sheet.columns = [
+  const sheetsByDate = new Map<string, ExcelJS.Worksheet>();
+  const columns = [
     { header: "Name", key: "name", width: 25 },
     { header: "Email", key: "email", width: 30 },
     { header: "Date", key: "date", width: 15 },
@@ -63,7 +62,18 @@ export async function GET(request: Request) {
     { header: "Hours", key: "hours", width: 15 },
   ];
 
+  const daysInMonth = new Date(year, monthNumber, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = `${year}-${String(monthNumber).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const sheet = workbook.addWorksheet(date);
+    sheet.columns = columns;
+    sheetsByDate.set(date, sheet);
+  }
+
   records.forEach((record: AttendanceReportRow) => {
+    const sheet = sheetsByDate.get(record.date);
+    if (!sheet) return;
+
     const checkIn = record.checkInAt ? new Date(record.checkInAt).toLocaleTimeString() : "--";
     const checkOut = record.checkOutAt ? new Date(record.checkOutAt).toLocaleTimeString() : "--";
 
@@ -84,6 +94,12 @@ export async function GET(request: Request) {
       checkOut,
       hours: totalMinutes > 0 ? hoursText : "--",
     });
+  });
+
+  sheetsByDate.forEach((sheet) => {
+    if (sheet.rowCount === 1) {
+      sheet.addRow({ name: "No attendance records" });
+    }
   });
 
   const buffer = await workbook.xlsx.writeBuffer();
