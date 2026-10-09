@@ -4,8 +4,8 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export function AuthForm() {
-  const [email, setEmail] = useState("admin@bardarash.co");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -45,6 +45,7 @@ export function AuthForm() {
         Email
         <input
           type="email"
+          autoComplete="username"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           required
@@ -55,6 +56,7 @@ export function AuthForm() {
         Password
         <input
           type="password"
+          autoComplete="current-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
@@ -66,11 +68,6 @@ export function AuthForm() {
       <button className="primary-btn" type="submit" disabled={loading}>
         {loading ? "Logging in..." : "Login"}
       </button>
-
-      <div className="demo-box">
-        <p>Demo login:</p>
-        <code>admin@bardarash.co / admin123</code>
-      </div>
     </form>
   );
 }
