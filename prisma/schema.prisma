@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  AGENT
+}
+
+model User {
+  id        String      @id @default(cuid())
+  name      String
+  email     String      @unique
+  password  String
+  role      Role        @default(AGENT)
+  createdAt DateTime    @default(now())
+  attendance Attendance[]
+}
+
+model Attendance {
+  id         String    @id @default(cuid())
+  userId     String
+  date       String
+  checkInAt  DateTime?
+  checkOutAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}

@@ -1,0 +1,33 @@
+{
+  "name": "agent-audience-bardarash",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "seed": "node scripts/seed.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.17.0",
+    "bcryptjs": "^2.4.3",
+    "exceljs": "^4.4.0",
+    "jose": "^5.5.0",
+    "next": "14.2.15",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.12",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.15",
+    "prisma": "^5.17.0",
+    "ts-node": "^10.9.0",
+    "typescript": "5.5.4"
+  }
+}

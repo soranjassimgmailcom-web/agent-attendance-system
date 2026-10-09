@@ -1,0 +1,55 @@
+# Agent Audince in Bardarash Co
+
+A website for managing agent attendance with check-in and check-out records, admin user creation, and monthly Excel reports.
+
+## Features
+- Admin login
+- Agent login
+- Daily check-in and check-out
+- Attendance history
+- Monthly Excel export
+- Company branding using the Bardarash logo style
+
+## Tech stack
+- Next.js
+- Prisma
+- SQLite for local development
+- ExcelJS for Excel export
+- Bcrypt for password hashing
+
+## Setup
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Push Prisma schema:
+   ```bash
+   npx prisma db push
+   ```
+
+3. Seed default users:
+   ```bash
+   npm run seed
+   ```
+
+4. Run the app:
+   ```bash
+   npm run dev
+   ```
+
+5. Open:
+   ```bash
+   http://localhost:3000
+   ```
+
+## Default login
+- Admin: admin@bardarash.co / admin123
+- Agent: agent@bardarash.co / agent123
+
+## Branding
+The website name is set as:
+- Agent Audince in Bardarash Co
+
+And the logo uses a gold sunburst style to match the provided reference.
