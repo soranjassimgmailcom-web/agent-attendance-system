@@ -81,6 +81,10 @@ export function AdminDashboard() {
     window.location.href = `/api/admin/reports/monthly?month=${currentMonth}`;
   }
 
+  function downloadSalaryReport() {
+    window.location.href = `/api/admin/reports/salary?month=${currentMonth}`;
+  }
+
   return (
     <main className="dashboard-shell">
       <header className="topbar">
@@ -151,9 +155,14 @@ export function AdminDashboard() {
             />
           </label>
 
-          <button className="primary-btn" onClick={downloadReport}>
-            Download Excel
-          </button>
+          <div className="report-actions">
+            <button className="primary-btn" onClick={downloadReport}>
+              Attendance Excel
+            </button>
+            <button className="secondary-btn" onClick={downloadSalaryReport}>
+              Salary Excel
+            </button>
+          </div>
         </div>
       </section>
 
