@@ -24,6 +24,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
 
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return NextResponse.json({ error: "Invalid account role" }, { status: 403 });
+  }
+
   await setSessionCookie({
     id: user.id,
     email: user.email,
