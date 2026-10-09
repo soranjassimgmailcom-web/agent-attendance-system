@@ -1,44 +1,38 @@
-import Image from "next/image";
-
 export default function HomePage() {
   return (
     <main className="landing-page">
       <section className="hero-card">
         <div className="brand-lockup">
-          <Image
-            src="/logo.svg"
-            alt="Agent Audince in Bardarash Co logo"
-            width={260}
-            height={190}
-            priority
-          />
+          <span className="brand-name">BARDARASH <span>ATTENDANCE</span></span>
         </div>
 
-        <p className="eyebrow">Agent Audince in Bardarash Co</p>
-        <h1>Daily attendance tracking for your team.</h1>
+        <p className="eyebrow">Team attendance</p>
+        <h1>Daily attendance, clearly tracked.</h1>
         <p className="subtitle">
-          Admins can create agent accounts, agents can check in and check out every day,
-          and reports can be exported to Excel each month.
+          One place for agent check-ins, check-outs, and monthly attendance reports.
         </p>
 
         <div className="hero-actions">
           <a href="/login" className="primary-btn">
-            Login
+            Sign in
           </a>
         </div>
 
         <div className="stats-grid">
           <div className="stat-box">
-            <strong>Admin</strong>
-            <span>Create agent accounts</span>
+            <span className="stat-label">01 / ADMIN</span>
+            <strong>Manage agents</strong>
+            <span>Create and maintain agent accounts.</span>
           </div>
           <div className="stat-box">
-            <strong>Agents</strong>
-            <span>Check in and out daily</span>
+            <span className="stat-label">02 / DAILY</span>
+            <strong>Record attendance</strong>
+            <span>Track check-in and check-out times.</span>
           </div>
           <div className="stat-box">
-            <strong>Reports</strong>
-            <span>Monthly Excel export</span>
+            <span className="stat-label">03 / REPORTS</span>
+            <strong>Review each month</strong>
+            <span>Export attendance records to Excel.</span>
           </div>
         </div>
       </section>

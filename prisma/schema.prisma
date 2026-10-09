@@ -1,16 +1,10 @@
-npx prisma generate {
+generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL="file:./dev.db"
-AUTH_SECRET="bardarash-agent-attendance-secret-2026")
-}
-
-enum Role {
-  ADMIN
-  AGENT
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -18,7 +12,7 @@ model User {
   name      String
   email     String      @unique
   password  String
-  role      Role        @default(AGENT)
+  role      String      @default("AGENT")
   createdAt DateTime    @default(now())
   attendance Attendance[]
 }
@@ -35,7 +29,5 @@ model Attendance {
 
   @@unique([userId, date])
 }
-npx prisma db push
-npm run build 
-npm run dev 
+
 

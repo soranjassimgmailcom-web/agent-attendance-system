@@ -5,10 +5,10 @@ export default function LoginPage() {
     <main className="auth-page">
       <section className="auth-card">
         <div className="mini-brand">
-          <img src="/logo.svg" alt="Logo" width={120} height={90} />
+          <span className="brand-name">BARDARASH <span>ATTENDANCE</span></span>
         </div>
-        <h1>Login</h1>
-        <p>Use your company email and password.</p>
+        <h1>Sign in</h1>
+        <p>Use your company email and password to continue.</p>
         <AuthForm />
       </section>
     </main>

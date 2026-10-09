@@ -2,13 +2,24 @@
   box-sizing: border-box;
 }
 
+:root {
+  --ink: #202923;
+  --muted: #65716a;
+  --line: #dce3dd;
+  --canvas: #f5f8f5;
+  --surface: #ffffff;
+  --accent: #18734b;
+  --accent-dark: #125a3b;
+  --accent-soft: #eaf3ed;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(135deg, #f4efe5 0%, #efe7d9 100%);
-  color: #1f2937;
+  background: var(--canvas);
+  color: var(--ink);
 }
 
 a {
@@ -30,80 +41,105 @@ button {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: 32px 24px;
 }
 
 .hero-card,
 .auth-card,
 .panel {
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(168, 142, 91, 0.2);
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(68, 54, 22, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(26, 44, 32, 0.05);
 }
 
 .hero-card {
-  width: min(100%, 1100px);
-  padding: 36px 28px 42px;
-  text-align: center;
+  width: min(100%, 960px);
+  padding: 24px 16px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .brand-lockup {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+  padding-bottom: 20px;
+  margin-bottom: 54px;
+  border-bottom: 1px solid var(--line);
 }
 
 .brand-inline {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+}
+
+.brand-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.brand-name span {
+  color: var(--accent);
+  font-weight: 500;
 }
 
 .eyebrow {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 11px;
-  color: #a77b1b;
+  font-size: 12px;
+  color: var(--accent);
   font-weight: 700;
 }
 
 h1 {
-  margin: 0 0 14px;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  color: #2d2414;
+  max-width: 720px;
+  margin: 0 0 18px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 52px;
+  line-height: 1.08;
+  font-weight: 500;
+  color: var(--ink);
 }
 
 .subtitle {
-  max-width: 760px;
-  margin: 0 auto;
-  font-size: 1.05rem;
-  color: #4b5563;
-  line-height: 1.7;
+  max-width: 580px;
+  margin: 0;
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.65;
 }
 
 .hero-actions {
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .primary-btn,
 .secondary-btn {
   border: none;
-  border-radius: 12px;
-  padding: 12px 22px;
+  border-radius: 6px;
+  padding: 12px 20px;
   font-weight: 700;
   transition: transform 0.15s ease;
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #c89b3d 0%, #a16f11 100%);
+  display: inline-flex;
+  justify-content: center;
+  background: var(--accent);
   color: white;
 }
 
+.primary-btn:hover {
+  background: var(--accent-dark);
+}
+
 .secondary-btn {
-  background: #ece6d9;
-  color: #1f2937;
+  background: var(--accent-soft);
+  color: var(--ink);
 }
 
 .primary-btn:hover,
@@ -118,50 +154,62 @@ h1 {
 }
 
 .stats-grid {
-  margin-top: 26px;
+  margin-top: 58px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
 }
 
 .stat-box {
-  background: #faf7f0;
-  border-radius: 16px;
-  padding: 18px 16px;
+  padding: 22px 24px 8px 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border: 1px solid #e5d7b2;
+  gap: 7px;
+}
+
+.stat-box + .stat-box {
+  padding-left: 24px;
+  border-left: 1px solid var(--line);
+}
+
+.stat-label {
+  margin-bottom: 5px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .stat-box strong {
-  font-size: 1.1rem;
-  color: #2d2414;
+  font-size: 16px;
+  color: var(--ink);
 }
 
 .stat-box span {
-  color: #4b5563;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .auth-card {
-  width: min(100%, 500px);
-  padding: 32px 28px;
+  width: min(100%, 440px);
+  padding: 32px;
 }
 
 .mini-brand {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 12px;
+  padding-bottom: 22px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--line);
 }
 
 .auth-card h1 {
-  font-size: 2rem;
   margin-bottom: 8px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
 }
 
 .auth-card p {
   margin-top: 0;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .auth-form,
@@ -178,16 +226,23 @@ h1 {
   flex-direction: column;
   gap: 8px;
   font-weight: 600;
-  color: #374151;
+  color: var(--ink);
 }
 
 .auth-form input,
 .stack-form input,
 .panel input {
-  border: 1px solid #d8c79c;
-  border-radius: 10px;
-  background: white;
+  border: 1px solid #cbd5cd;
+  border-radius: 6px;
+  background: var(--surface);
   padding: 12px 14px;
+}
+
+.auth-form input:focus,
+.stack-form input:focus,
+.panel input:focus {
+  outline: 2px solid rgba(24, 115, 75, 0.2);
+  border-color: var(--accent);
 }
 
 .error-text {
@@ -203,10 +258,10 @@ h1 {
 }
 
 .demo-box {
-  background: #f6f1e6;
-  border-radius: 12px;
+  background: var(--accent-soft);
+  border-radius: 6px;
   padding: 14px 16px;
-  color: #374151;
+  color: var(--ink);
 }
 
 .demo-box p {
@@ -214,9 +269,9 @@ h1 {
 }
 
 .demo-box code {
-  background: #fff;
+  background: var(--surface);
   display: inline-block;
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 6px 8px;
 }
 
@@ -269,8 +324,8 @@ td {
 }
 
 th {
-  color: #374151;
-  background: #faf7f0;
+  color: var(--ink);
+  background: #f0f5f1;
 }
 
 .button-row {
@@ -291,8 +346,45 @@ th {
     grid-template-columns: 1fr;
   }
 
+  .brand-lockup {
+    margin-bottom: 40px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+
+  .stats-grid {
+    margin-top: 42px;
+  }
+
+  .stat-box,
+  .stat-box + .stat-box {
+    padding: 18px 0;
+    border-left: 0;
+  }
+
+  .stat-box + .stat-box {
+    border-top: 1px solid var(--line);
+  }
+
   .topbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .landing-page,
+  .auth-page {
+    padding: 20px 16px;
+  }
+
+  .auth-card {
+    padding: 24px 20px;
+  }
+
+  h1 {
+    font-size: 34px;
   }
 }
