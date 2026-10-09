@@ -48,6 +48,8 @@ button {
   --accent: #b08a36;
   --accent-dark: #927027;
   --accent-soft: #f5f0e2;
+  display: block;
+  padding: 0;
   background: #faf9f5;
 }
 
@@ -66,6 +68,65 @@ button {
   background: transparent;
   border: 0;
   box-shadow: none;
+}
+
+.home-shell {
+  width: min(100%, 1120px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px 32px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-header {
+  min-height: 100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.government-name {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.home-runaki-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.home-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.home-hero h1 {
+  max-width: 760px;
+  margin-bottom: 16px;
+}
+
+.home-hero .subtitle {
+  max-width: 620px;
+}
+
+.home-hero .hero-actions {
+  margin-top: 28px;
+}
+
+.login-help {
+  max-width: 560px;
+  margin: 28px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .brand-lockup {
@@ -198,9 +259,7 @@ h1 {
 }
 
 .landing-footer {
-  margin-top: 32px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
+  padding-top: 16px;
   color: var(--muted);
   font-size: 12px;
   text-align: center;
@@ -267,6 +326,17 @@ h1 {
   background: #f5f6f8;
   font-family: Arial, Helvetica, sans-serif;
   color: #242424;
+}
+
+.landing-page,
+.reference-login-page {
+  background-image:
+    linear-gradient(rgba(250, 249, 245, 0.7), rgba(250, 249, 245, 0.7)),
+    url("/runaki-background.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 .reference-login-wrap {
@@ -366,6 +436,11 @@ h1 {
 }
 
 @media (max-width: 600px) {
+  .landing-page,
+  .reference-login-page {
+    background-attachment: scroll;
+  }
+
   .reference-login-page {
     padding: 12px;
   }
@@ -514,26 +589,21 @@ th {
     grid-template-columns: 1fr;
   }
 
-  .brand-lockup {
-    margin-bottom: 40px;
+  .home-shell {
+    padding: 12px 18px 16px;
+  }
+
+  .home-header {
+    min-height: 76px;
+  }
+
+  .home-runaki-logo {
+    width: 72px;
+    height: 72px;
   }
 
   h1 {
     font-size: 40px;
-  }
-
-  .stats-grid {
-    margin-top: 42px;
-  }
-
-  .stat-box,
-  .stat-box + .stat-box {
-    padding: 18px 0;
-    border-left: 0;
-  }
-
-  .stat-box + .stat-box {
-    border-top: 1px solid var(--line);
   }
 
   .topbar {
