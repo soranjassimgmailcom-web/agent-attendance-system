@@ -3,11 +3,12 @@ export default function HomePage() {
     <main className="landing-page">
       <section className="hero-card">
         <div className="brand-lockup">
+          <span className="sun-mark" aria-hidden="true" />
           <span className="brand-name">BARDARASH <span>ATTENDANCE</span></span>
         </div>
 
         <p className="eyebrow">Team attendance</p>
-        <h1>Daily attendance, clearly tracked.</h1>
+        <h1>Agent Audince In Bardrash Co</h1>
         <p className="subtitle">
           One place for agent check-ins, check-outs, and monthly attendance reports.
         </p>
@@ -35,6 +36,8 @@ export default function HomePage() {
             <span>Export attendance records to Excel.</span>
           </div>
         </div>
+
+        <footer className="landing-footer">Baardarash Co</footer>
       </section>
     </main>
   );
