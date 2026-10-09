@@ -5,7 +5,14 @@ export default function HomePage() {
     <main className="landing-page">
       <div className="home-shell">
         <header className="home-header">
-          <p className="government-name">Government of Kurdistan</p>
+          <Image
+            className="government-logo"
+            src="/government-of-kurdistan.png"
+            alt="Kurdistan Regional Government emblem"
+            width={100}
+            height={100}
+            priority
+          />
           <Image
             className="home-runaki-logo"
             src="https://agentproject-three.vercel.app/runaki-logo.jpeg"

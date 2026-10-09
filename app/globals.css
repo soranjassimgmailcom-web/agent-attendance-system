@@ -77,6 +77,7 @@ button {
   padding: 24px 32px 18px;
   display: flex;
   flex-direction: column;
+  font-weight: 700;
 }
 
 .home-header {
@@ -87,11 +88,10 @@ button {
   gap: 20px;
 }
 
-.government-name {
-  margin: 0;
-  color: var(--ink);
-  font-size: 14px;
-  font-weight: 700;
+.government-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
 }
 
 .home-runaki-logo {
@@ -112,6 +112,7 @@ button {
 .home-hero h1 {
   max-width: 760px;
   margin-bottom: 16px;
+  font-weight: 700;
 }
 
 .home-hero .subtitle {
@@ -326,6 +327,7 @@ h1 {
   background: #f5f6f8;
   font-family: Arial, Helvetica, sans-serif;
   color: #242424;
+  font-weight: 700;
 }
 
 .landing-page,
@@ -598,6 +600,11 @@ th {
   }
 
   .home-runaki-logo {
+    width: 72px;
+    height: 72px;
+  }
+
+  .government-logo {
     width: 72px;
     height: 72px;
   }
