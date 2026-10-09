@@ -1,4 +1,4 @@
-npx prisma generate client {
+npx prisma generate {
   provider = "prisma-client-js"
 }
 
