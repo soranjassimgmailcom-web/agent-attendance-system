@@ -14,3 +14,4 @@ prisma/project-system.db-journal
 Project-System-Upload.zip
 .vercel
 .env*
+!.env.example
