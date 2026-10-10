@@ -11,29 +11,62 @@ export async function GET() {
   }
 
   const agents = await prisma.user.findMany({
+    where: { role: "AGENT" },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
       name: true,
       email: true,
       role: true,
+      isActive: true,
     },
   });
 
-  const attendance = await prisma.attendance.findMany({
-    orderBy: { date: "desc" },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
+  const { searchParams } = new URL(request.url);
+  const month = searchParams.get("month") || new Date().toISOString().slice(0, 7);
+
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+    return NextResponse.json({ error: "Month must use YYYY-MM format" }, { status: 400 });
+  }
+
+  const [attendance, leaveDays] = await Promise.all([
+    prisma.attendance.findMany({
+      where: {
+        date: {
+          startsWith: month,
         },
       },
-    },
-  });
+      orderBy: { date: "desc" },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    }),
+    prisma.leaveDay.findMany({
+      where: {
+        date: {
+          startsWith: month,
+        },
+      },
+      orderBy: { date: "desc" },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    }),
+  ]);
 
-  return NextResponse.json({ agents, attendance });
+  return NextResponse.json({ agents, attendance, leaveDays });
 }
 
 export async function POST(request: Request) {
