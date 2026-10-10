@@ -33,6 +33,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
 
+  if (!user.isActive) {
+    return NextResponse.json({ error: "This account has been deactivated. Contact an administrator." }, { status: 403 });
+  }
+
   const isValid = await bcrypt.compare(password, user.password);
 
   if (!isValid) {

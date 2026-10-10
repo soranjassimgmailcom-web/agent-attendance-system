@@ -10,14 +10,24 @@ export async function GET() {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const record = await prisma.attendance.findUnique({
-    where: {
-      userId_date: {
-        userId: session.userId,
-        date: today,
+  const [record, leaveDay] = await Promise.all([
+    prisma.attendance.findUnique({
+      where: {
+        userId_date: {
+          userId: session.userId,
+          date: today,
+        },
       },
-    },
-  });
+    }),
+    prisma.leaveDay.findUnique({
+      where: {
+        userId_date: {
+          userId: session.userId,
+          date: today,
+        },
+      },
+    }),
+  ]);
 
-  return NextResponse.json({ record });
+  return NextResponse.json({ record, leaveDay });
 }

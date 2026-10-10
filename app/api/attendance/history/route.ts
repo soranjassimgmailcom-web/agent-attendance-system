@@ -9,14 +9,24 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const records = await prisma.attendance.findMany({
-    where: {
-      userId: session.userId,
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
+  const [records, leaveDays] = await Promise.all([
+    prisma.attendance.findMany({
+      where: {
+        userId: session.userId,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    }),
+    prisma.leaveDay.findMany({
+      where: {
+        userId: session.userId,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    }),
+  ]);
 
-  return NextResponse.json({ records });
+  return NextResponse.json({ records, leaveDays });
 }

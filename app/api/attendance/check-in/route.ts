@@ -12,6 +12,23 @@ export async function POST() {
   const today = new Date().toISOString().slice(0, 10);
   const now = new Date();
 
+  const leaveDay = await prisma.leaveDay.findUnique({
+    where: {
+      userId_date: {
+        userId: session.userId,
+        date: today,
+      },
+    },
+  });
+
+  if (leaveDay) {
+    const label = leaveDay.type === "VACATION" ? "Vacation" : "Authorized absence";
+    return NextResponse.json(
+      { error: `Your attendance is marked as ${label} today.` },
+      { status: 409 }
+    );
+  }
+
   const record = await prisma.attendance.findUnique({
     where: {
       userId_date: {

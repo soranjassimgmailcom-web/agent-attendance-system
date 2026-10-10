@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
+import { prisma } from "@/lib/prisma";
 
 function getAuthSecret() {
   const secret = process.env.AUTH_SECRET;
@@ -56,12 +57,26 @@ export async function getSession() {
 
   try {
     const payload = await verifySessionToken(token);
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+      },
+    });
+
+    if (!user || !user.isActive || (user.role !== "ADMIN" && user.role !== "AGENT")) {
+      return null;
+    }
 
     return {
-      userId: payload.userId,
-      email: payload.email,
-      name: payload.name,
-      role: payload.role,
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
     } satisfies SessionUser;
   } catch {
     return null;

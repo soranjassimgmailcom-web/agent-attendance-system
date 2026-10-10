@@ -8,14 +8,21 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+enum LeaveType {
+  VACATION
+  AUTHORIZED_ABSENCE
+}
+
 model User {
   id         String       @id @default(cuid())
   name       String
   email      String       @unique
   password   String
   role       String       @default("AGENT")
+  isActive   Boolean      @default(true)
   createdAt  DateTime     @default(now())
   attendance Attendance[]
+  leaveDays  LeaveDay[]
 }
 
 model Attendance {
@@ -29,4 +36,17 @@ model Attendance {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
+}
+
+model LeaveDay {
+  id        String    @id @default(cuid())
+  userId    String
+  date      String
+  type      LeaveType
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([date])
 }
