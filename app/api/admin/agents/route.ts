@@ -74,4 +74,9 @@ export async function POST(request: Request) {
       role: true,
     },
   });
+
+  return NextResponse.json(
+    { agent: user, message: "Agent account created successfully" },
+    { status: 201 }
+  );
 }
