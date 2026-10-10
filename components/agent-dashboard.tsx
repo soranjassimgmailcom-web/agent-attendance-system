@@ -82,9 +82,9 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
     <main className="dashboard-shell">
       <header className="topbar">
         <div className="brand-inline">
-          <span className="brand-name">BARDARASH <span>ATTENDANCE</span></span>
+          <span className="brand-name">PROJECT <span>SYSTEM</span></span>
           <div>
-            <p className="eyebrow">Agent Dashboard</p>
+            <p className="eyebrow">Dashboard</p>
             <h1>Welcome, {user.name}</h1>
           </div>
         </div>

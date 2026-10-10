@@ -1,52 +1,55 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+# Project System
 
-const prisma = new PrismaClient();
+Project System is a small attendance and reporting application for teams to check in, track participation, and export monthly reports.
 
-async function main() {
-  const adminPassword = await bcrypt.hash("admin123", 10);
+## Features
 
-  await prisma.user.upsert({
-    where: { email: "admin@bardarash.co" },
-    update: {
-      name: "System Admin",
-      password: adminPassword,
-      role: "ADMIN",
-    },
-    create: {
-      name: "System Admin",
-      email: "admin@bardarash.co",
-      password: adminPassword,
-      role: "ADMIN",
-    },
-  });
+- Secure admin and agent sign-in
+- Daily check-in and check-out tracking
+- Attendance history for each user
+- Monthly Excel exports for attendance and salary reports
+- Simple project branding and dashboard experience
 
-  const agentPassword = await bcrypt.hash("agent123", 10);
+## Tech stack
 
-  await prisma.user.upsert({
-    where: { email: "agent@bardarash.co" },
-    update: {
-      name: "Sample Agent",
-      password: agentPassword,
-      role: "AGENT",
-    },
-    create: {
-      name: "Sample Agent",
-      email: "agent@bardarash.co",
-      password: agentPassword,
-      role: "AGENT",
-    },
-  });
+- Next.js
+- Prisma
+- SQLite for local development
+- ExcelJS
+- bcryptjs
 
-  console.log("Seed complete. Default admin: admin@bardarash.co / admin123");
-  console.log("Default agent: agent@bardarash.co / agent123");
-}
+## Setup
 
-main()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Push the Prisma schema:
+   ```bash
+   npx prisma db push
+   ```
+
+3. Seed default users:
+   ```bash
+   npm run seed
+   ```
+
+4. Run the app:
+   ```bash
+   npm run dev
+   ```
+
+5. Open the app in your browser:
+   ```bash
+   http://localhost:3000
+   ```
+
+## Default accounts
+
+- Admin: `admin@bardarash.co` / `admin123`
+- Agent: `agent@bardarash.co` / `agent123`
+
+## Project naming
+
+The product is branded as Project System across the landing page, login screen, and dashboard experience.
