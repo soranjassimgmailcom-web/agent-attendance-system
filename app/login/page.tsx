@@ -6,7 +6,14 @@ export default function LoginPage() {
     <main className="reference-login-page">
       <div className="reference-login-wrap">
         <header className="reference-brand">
-          <Image className="reference-brand-image" src="/logo.svg" alt="Project System logo" width={140} height={140} priority />
+          <Image
+            className="reference-brand-image"
+            src="https://agentproject-three.vercel.app/runaki-logo.jpeg"
+            alt="Runaki logo"
+            width={140}
+            height={140}
+            priority
+          />
           <h1>Project System</h1>
           <p>Attendance Management</p>
         </header>

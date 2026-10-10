@@ -172,6 +172,13 @@ button {
   gap: 12px;
 }
 
+.runaki-dashboard-logo {
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: contain;
+  background: #fff;
+}
+
 .brand-name {
   display: inline-flex;
   align-items: center;

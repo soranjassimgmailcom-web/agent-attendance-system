@@ -192,7 +192,13 @@ export function AdminDashboard() {
       <header className="topbar">
         <div>
           <div className="brand-inline">
-            <img src="/logo.svg" alt="company logo" width={60} height={45} />
+            <img
+              className="runaki-dashboard-logo"
+              src="https://agentproject-three.vercel.app/runaki-logo.jpeg"
+              alt="Runaki"
+              width={56}
+              height={56}
+            />
             <div>
               <p className="eyebrow">Admin Dashboard</p>
               <h1>Project System</h1>

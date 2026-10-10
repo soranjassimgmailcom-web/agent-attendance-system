@@ -5,7 +5,14 @@ export default function HomePage() {
     <main className="landing-page">
       <div className="home-shell">
         <header className="home-header">
-          <Image className="government-logo" src="/logo.svg" alt="Project System logo" width={100} height={100} priority />
+          <Image
+            className="home-runaki-logo"
+            src="https://agentproject-three.vercel.app/runaki-logo.jpeg"
+            alt="Runaki logo"
+            width={100}
+            height={100}
+            priority
+          />
         </header>
 
         <section className="hero-card home-hero">
