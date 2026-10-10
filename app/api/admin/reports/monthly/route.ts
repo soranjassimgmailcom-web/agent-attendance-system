@@ -17,6 +17,18 @@ type AttendanceReportRow = {
   };
 };
 
+type LeaveReportRow = {
+  id: string;
+  userId: string;
+  date: string;
+  type: "VACATION" | "AUTHORIZED_ABSENCE";
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
 export async function GET(request: Request) {
   const session = await getSession();
 
@@ -26,30 +38,43 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const month = searchParams.get("month") || new Date().toISOString().slice(0, 7);
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+    return NextResponse.json({ error: "Month must use YYYY-MM format" }, { status: 400 });
+  }
+
   const [year, monthNumber] = month.split("-").map(Number);
   const start = `${year}-${String(monthNumber).padStart(2, "0")}-01`;
-  const end = new Date(year, monthNumber, 0).toISOString().slice(0, 10);
+  const end = `${month}-${String(new Date(Date.UTC(year, monthNumber, 0)).getUTCDate()).padStart(2, "0")}`;
 
-  const records = (await prisma.attendance.findMany({
-    where: {
-      date: {
-        gte: start,
-        lte: end,
-      },
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
+  const [records, leaveDays] = await Promise.all([
+    prisma.attendance.findMany({
+      where: {
+        date: {
+          gte: start,
+          lte: end,
         },
       },
-    },
-    orderBy: {
-      date: "asc",
-    },
-  })) as AttendanceReportRow[];
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { date: "asc" },
+    }) as Promise<AttendanceReportRow[]>,
+    prisma.leaveDay.findMany({
+      where: { date: { gte: start, lte: end } },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true },
+        },
+      },
+      orderBy: { date: "asc" },
+    }) as Promise<LeaveReportRow[]>,
+  ]);
 
   const workbook = new ExcelJS.Workbook();
   const sheetsByDate = new Map<string, ExcelJS.Worksheet>();
@@ -57,6 +82,7 @@ export async function GET(request: Request) {
     { header: "Name", key: "name", width: 25 },
     { header: "Email", key: "email", width: 30 },
     { header: "Date", key: "date", width: 15 },
+    { header: "Status", key: "status", width: 24 },
     { header: "Check In", key: "checkIn", width: 20 },
     { header: "Check Out", key: "checkOut", width: 20 },
     { header: "Hours", key: "hours", width: 15 },
@@ -90,15 +116,31 @@ export async function GET(request: Request) {
       name: record.user.name,
       email: record.user.email,
       date: record.date,
+      status: "Present",
       checkIn,
       checkOut,
       hours: totalMinutes > 0 ? hoursText : "--",
     });
   });
 
+  leaveDays.forEach((leaveDay) => {
+    const sheet = sheetsByDate.get(leaveDay.date);
+    if (!sheet) return;
+
+    sheet.addRow({
+      name: leaveDay.user.name,
+      email: leaveDay.user.email,
+      date: leaveDay.date,
+      status: leaveDay.type === "VACATION" ? "Vacation" : "Authorized absence",
+      checkIn: "--",
+      checkOut: "--",
+      hours: "--",
+    });
+  });
+
   sheetsByDate.forEach((sheet) => {
     if (sheet.rowCount === 1) {
-      sheet.addRow({ name: "No attendance records" });
+      sheet.addRow({ name: "No attendance or time-off records" });
     }
   });
 
