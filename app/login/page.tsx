@@ -8,7 +8,7 @@ export default function LoginPage() {
         <header className="reference-brand">
           <Image
             className="reference-brand-image"
-            src="https://agentproject-three.vercel.app/runaki-logo.jpeg"
+            src="/runaki-logo.png"
             alt="Runaki logo"
             width={140}
             height={140}

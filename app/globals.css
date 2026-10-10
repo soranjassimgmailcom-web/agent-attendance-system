@@ -174,9 +174,9 @@ button {
 
 .runaki-dashboard-logo {
   flex: 0 0 auto;
-  border-radius: 50%;
   object-fit: contain;
-  background: #fff;
+  width: 100px;
+  height: 82px;
 }
 
 .brand-name {

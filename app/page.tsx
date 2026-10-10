@@ -7,7 +7,7 @@ export default function HomePage() {
         <header className="home-header">
           <Image
             className="home-runaki-logo"
-            src="https://agentproject-three.vercel.app/runaki-logo.jpeg"
+            src="/runaki-logo.png"
             alt="Runaki logo"
             width={100}
             height={100}

@@ -95,7 +95,7 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
         <div className="brand-inline">
           <img
             className="runaki-dashboard-logo"
-            src="https://agentproject-three.vercel.app/runaki-logo.jpeg"
+            src="/runaki-logo.png"
             alt="Runaki"
             width={56}
             height={56}
