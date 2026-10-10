@@ -9,3 +9,4 @@ node_modules
 !.env.example
 prisma/dev.db
 prisma/dev.db-journal
+Project-System-Upload.zip
