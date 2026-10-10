@@ -30,7 +30,7 @@ Project System is an attendance and reporting application for teams to check in,
    cp .env.example .env
    ```
 
-   Set `DATABASE_URL` to the pooled PostgreSQL connection string and `DIRECT_URL` to the direct, non-pooled connection string from your database provider. Set a unique `AUTH_SECRET` (at least 32 characters) and unique admin and agent passwords (at least 16 characters). Generate secrets with `openssl rand -base64 48`. Never commit or share `.env`.
+   Set `DATABASE_URL` to the pooled PostgreSQL connection string and `POSTGRES_URL_NON_POOLING` to the direct, non-pooled connection string from your database provider. Set a unique `AUTH_SECRET` (at least 32 characters) and unique admin and agent passwords (at least 16 characters). Generate secrets with `openssl rand -base64 48`. Never commit or share `.env`.
 
 3. Apply the schema migrations:
    ```bash
@@ -59,7 +59,7 @@ The seed script requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AG
 ## Deploy to Vercel
 
 1. Connect this GitHub repository to Vercel and add a Neon PostgreSQL database, or connect an existing PostgreSQL database.
-2. In the Vercel project's **Settings → Environment Variables**, configure `DATABASE_URL` (pooled connection), `DIRECT_URL` (direct, non-pooled connection), `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD`. Add production credentials to the Production environment only; use a separate database and credentials for Preview if needed.
+2. Vercel's Neon integration provides `DATABASE_URL` for the pooled connection and `POSTGRES_URL_NON_POOLING` for the direct, non-pooled connection. In the Vercel project's **Settings → Environment Variables**, add `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD`. Add production credentials to the Production environment only; use a separate database and credentials for Preview if needed.
 3. Deploy. Vercel runs `vercel-build`, which applies the committed Prisma migrations before building the app.
 4. Link the project with the Vercel CLI, then create the accounts in the production database by running:
    ```bash
