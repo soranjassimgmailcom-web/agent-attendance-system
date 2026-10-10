@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await getSession();
 
   if (!session || session.role !== "ADMIN") {
