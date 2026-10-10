@@ -47,8 +47,8 @@ Project System is a small attendance and reporting application for teams to chec
 
 ## Default accounts
 
-- Admin: `admin@bardarash.co` / `admin123`
-- Agent: `agent@bardarash.co` / `agent123`
+- Admin: `admin@projectsystem.com` / `admin123`
+- Agent: `agent@projectsystem.com` / `agent123`
 
 ## Project naming
 
