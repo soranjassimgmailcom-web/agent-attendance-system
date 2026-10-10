@@ -1,38 +1,60 @@
+import { loadEnvConfig } from "@next/env";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
+loadEnvConfig(process.cwd());
+
 const prisma = new PrismaClient();
 
+function getRequiredEnv(name) {
+  const value = process.env[name];
+
+  if (!value) {
+    throw new Error(`${name} must be set in .env before seeding.`);
+  }
+
+  return value;
+}
+
 async function main() {
-  const adminPassword = await bcrypt.hash("admin123", 10);
-  const agentPassword = await bcrypt.hash("agent123", 10);
+  const adminEmail = getRequiredEnv("ADMIN_EMAIL");
+  const adminPassword = getRequiredEnv("ADMIN_PASSWORD");
+  const agentEmail = getRequiredEnv("AGENT_EMAIL");
+  const agentPassword = getRequiredEnv("AGENT_PASSWORD");
+
+  if (adminPassword.length < 16 || agentPassword.length < 16) {
+    throw new Error("ADMIN_PASSWORD and AGENT_PASSWORD must each be at least 16 characters.");
+  }
+
+  const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
+  const hashedAgentPassword = await bcrypt.hash(agentPassword, 10);
 
   await prisma.user.upsert({
-    where: { email: "admin@projectsystem.com" },
+    where: { email: adminEmail },
     update: {
       name: "System Admin",
-      password: adminPassword,
+      password: hashedAdminPassword,
       role: "ADMIN",
     },
     create: {
       name: "System Admin",
-      email: "admin@projectsystem.com",
-      password: adminPassword,
+      email: adminEmail,
+      password: hashedAdminPassword,
       role: "ADMIN",
     },
   });
 
   await prisma.user.upsert({
-    where: { email: "agent@projectsystem.com" },
+    where: { email: agentEmail },
     update: {
       name: "Sample Agent",
-      password: agentPassword,
+      password: hashedAgentPassword,
       role: "AGENT",
     },
     create: {
       name: "Sample Agent",
-      email: "agent@projectsystem.com",
-      password: agentPassword,
+      email: agentEmail,
+      password: hashedAgentPassword,
       role: "AGENT",
     },
   });

@@ -1,9 +1,15 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "change-this-secret-key"
-);
+function getAuthSecret() {
+  const secret = process.env.AUTH_SECRET;
+
+  if (!secret || secret.length < 32) {
+    throw new Error("AUTH_SECRET must be set to a secret of at least 32 characters.");
+  }
+
+  return new TextEncoder().encode(secret);
+}
 
 export type SessionUser = {
   userId: string;
@@ -27,11 +33,11 @@ export async function createSessionToken(user: {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(secret);
+    .sign(getAuthSecret());
 }
 
 export async function verifySessionToken(token: string) {
-  const { payload } = await jwtVerify(token, secret);
+  const { payload } = await jwtVerify(token, getAuthSecret());
   return payload as {
     userId: string;
     email: string;

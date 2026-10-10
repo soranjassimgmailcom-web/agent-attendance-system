@@ -25,30 +25,38 @@ Project System is a small attendance and reporting application for teams to chec
    npm install
    ```
 
-2. Push the Prisma schema:
+2. Create your private environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+   Set a unique `AUTH_SECRET` (at least 32 characters) and unique admin and agent passwords (at least 16 characters) in `.env`. For example, generate secrets with `openssl rand -base64 48`. Never commit or share `.env`.
+
+3. Create the new local database and apply the schema:
    ```bash
    npx prisma db push
    ```
 
-3. Seed default users:
+4. Create the admin and agent accounts using the credentials from `.env`:
    ```bash
    npm run seed
    ```
 
-4. Run the app:
+5. Run the app:
    ```bash
    npm run dev
    ```
 
-5. Open the app in your browser:
+6. Open the app in your browser:
    ```bash
    http://localhost:3000
    ```
 
-## Default accounts
+The SQLite database is created at `prisma/project-system.db` and is excluded from Git. To use an existing database, back it up before changing `DATABASE_URL`.
 
-- Admin: `admin@projectsystem.com` / `admin123`
-- Agent: `agent@projectsystem.com` / `agent123`
+## Credentials and security
+
+The seed script requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD` in `.env`. Seeding an existing account updates its password to the configured value. The application also requires `AUTH_SECRET`; it does not fall back to a known default.
 
 ## Project naming
 
