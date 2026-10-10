@@ -1,17 +1,32 @@
 import { prisma } from "@/lib/prisma";
-import { getSession, setSessionCookie } from "@/lib/auth";
+import { setSessionCookie } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
+  let body: unknown;
 
-  if (!email || !password) {
+  try {
+    body = await request.json();
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Invalid login request. Please try again." }, { status: 400 });
+    }
+    throw error;
+  }
+
+  if (typeof body !== "object" || body === null) {
+    return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+  }
+
+  const { email, password } = body as { email?: unknown; password?: unknown };
+
+  if (typeof email !== "string" || !email.trim() || typeof password !== "string" || !password) {
     return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
   }
 
   const user = await prisma.user.findUnique({
-    where: { email: String(email).toLowerCase() },
+    where: { email: email.trim().toLowerCase() },
   });
 
   if (!user) {

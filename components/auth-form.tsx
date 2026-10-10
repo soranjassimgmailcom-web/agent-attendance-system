@@ -2,6 +2,13 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { readApiResponse } from "@/lib/client-api";
+
+type LoginResponse = {
+  user: {
+    role: "ADMIN" | "AGENT";
+  };
+};
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -18,22 +25,25 @@ export function AuthForm() {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
+        credentials: "include",
+        cache: "no-store",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await readApiResponse<LoginResponse>(response);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
+      if (data.user?.role !== "ADMIN" && data.user?.role !== "AGENT") {
+        throw new Error("The server returned an incomplete login response. Please try again.");
       }
 
       router.push(data.user.role === "ADMIN" ? "/admin" : "/agent");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not sign in. Please try again.");
     } finally {
       setLoading(false);
     }

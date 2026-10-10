@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { readApiResponse } from "@/lib/client-api";
 
 type Agent = {
   id: string;
@@ -30,16 +31,19 @@ export function AdminDashboard() {
   const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().slice(0, 7));
 
   async function loadData() {
-    const response = await fetch("/api/admin/agents", { credentials: "include" });
-    const data = await response.json();
+    try {
+      const response = await fetch("/api/admin/agents", {
+        credentials: "include",
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
+      const data = await readApiResponse<{ agents: Agent[]; attendance: AttendanceRecord[] }>(response);
 
-    if (!response.ok) {
-      setError(data.error || "Failed to load data");
-      return;
+      setAgents(data.agents);
+      setAttendance(data.attendance);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load dashboard data. Please try again.");
     }
-
-    setAgents(data.agents);
-    setAttendance(data.attendance);
   }
 
   useEffect(() => {
@@ -51,25 +55,26 @@ export function AdminDashboard() {
     setError("");
     setSuccess("");
 
-    const response = await fetch("/api/admin/agents", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+    try {
+      const response = await fetch("/api/admin/agents", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    const data = await response.json();
+      await readApiResponse<{ message: string }>(response);
 
-    if (!response.ok) {
-      setError(data.error || "Failed to create agent");
-      return;
+      setSuccess("Agent account created successfully");
+      setForm({ name: "", email: "", password: "" });
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not create agent. Please try again.");
     }
-
-    setSuccess("Agent account created successfully");
-    setForm({ name: "", email: "", password: "" });
-    loadData();
   }
 
   async function handleLogout() {

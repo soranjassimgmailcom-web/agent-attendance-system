@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { readApiResponse } from "@/lib/client-api";
 
 type AttendanceEntry = {
   id: string;
@@ -25,16 +26,12 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
       ]);
 
       const [statusData, historyData] = await Promise.all([
-        statusResponse.json(),
-        historyResponse.json(),
+        readApiResponse<{ record: AttendanceEntry | null }>(statusResponse),
+        readApiResponse<{ records: AttendanceEntry[] }>(historyResponse),
       ]);
 
-      if (!statusResponse.ok || !historyResponse.ok) {
-        throw new Error(statusData.error || historyData.error || "Could not load attendance");
-      }
-
       setTodayRecord(statusData.record);
-      setHistory(historyData.records || []);
+      setHistory(historyData.records);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load attendance");
     } finally {
@@ -57,11 +54,7 @@ export function AgentDashboard({ user }: { user: { userId: string; name: string;
         credentials: "include",
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Action failed");
-      }
+      await readApiResponse<{ message: string }>(response);
 
       setMessage(type === "check-in" ? "You're checked in. Have a great day!" : "You're checked out. Your day is recorded.");
       setError("");
