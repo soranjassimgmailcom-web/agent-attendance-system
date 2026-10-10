@@ -30,15 +30,19 @@ export async function POST(request: Request) {
     throw error;
   }
 
+  const leaveRequest =
+    typeof body === "object" && body !== null
+      ? (body as { userId?: unknown; date?: unknown; type?: unknown })
+      : null;
+
   if (
-    typeof body !== "object" ||
-    body === null ||
-    typeof body.userId !== "string" ||
-    !body.userId ||
-    typeof body.date !== "string" ||
-    !isCalendarDate(body.date) ||
-    typeof body.type !== "string" ||
-    !leaveTypes.includes(body.type as (typeof leaveTypes)[number])
+    !leaveRequest ||
+    typeof leaveRequest.userId !== "string" ||
+    !leaveRequest.userId ||
+    typeof leaveRequest.date !== "string" ||
+    !isCalendarDate(leaveRequest.date) ||
+    typeof leaveRequest.type !== "string" ||
+    !leaveTypes.includes(leaveRequest.type as (typeof leaveTypes)[number])
   ) {
     return NextResponse.json(
       { error: "Choose an agent, a valid date, and a valid time-off type" },
@@ -47,7 +51,7 @@ export async function POST(request: Request) {
   }
 
   const agent = await prisma.user.findUnique({
-    where: { id: body.userId },
+    where: { id: leaveRequest.userId },
     select: { id: true, role: true, isActive: true },
   });
 
@@ -59,7 +63,7 @@ export async function POST(request: Request) {
     where: {
       userId_date: {
         userId: agent.id,
-        date: body.date,
+        date: leaveRequest.date,
       },
     },
     select: { id: true },
@@ -79,11 +83,11 @@ export async function POST(request: Request) {
         date: body.date,
       },
     },
-    update: { type: body.type as (typeof leaveTypes)[number] },
+    update: { type: leaveRequest.type as (typeof leaveTypes)[number] },
     create: {
       userId: agent.id,
-      date: body.date,
-      type: body.type as (typeof leaveTypes)[number],
+      date: leaveRequest.date,
+      type: leaveRequest.type as (typeof leaveTypes)[number],
     },
     include: {
       user: {

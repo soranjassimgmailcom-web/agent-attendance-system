@@ -22,7 +22,12 @@ export async function PATCH(
     throw error;
   }
 
-  if (typeof body !== "object" || body === null || typeof body.isActive !== "boolean") {
+  const isActive =
+    typeof body === "object" && body !== null
+      ? (body as { isActive?: unknown }).isActive
+      : undefined;
+
+  if (typeof isActive !== "boolean") {
     return NextResponse.json({ error: "isActive must be true or false" }, { status: 400 });
   }
 
@@ -37,7 +42,7 @@ export async function PATCH(
 
   const updated = await prisma.user.update({
     where: { id: agent.id },
-    data: { isActive: body.isActive },
+    data: { isActive },
     select: { id: true, isActive: true },
   });
 
