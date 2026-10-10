@@ -7,8 +7,4 @@ node_modules
 .env.local
 .env.*
 !.env.example
-prisma/dev.db
-prisma/dev.db-journal
-prisma/project-system.db
-prisma/project-system.db-journal
 Project-System-Upload.zip

@@ -1,6 +1,6 @@
 # Project System
 
-Project System is a small attendance and reporting application for teams to check in, track participation, and export monthly reports.
+Project System is an attendance and reporting application for teams to check in, track participation, and export monthly reports. It uses PostgreSQL so it can run reliably on Vercel.
 
 ## Features
 
@@ -14,7 +14,7 @@ Project System is a small attendance and reporting application for teams to chec
 
 - Next.js
 - Prisma
-- SQLite for local development
+- PostgreSQL (Neon recommended for Vercel)
 - ExcelJS
 - bcryptjs
 
@@ -25,16 +25,16 @@ Project System is a small attendance and reporting application for teams to chec
    npm install
    ```
 
-2. Create your private environment file:
+2. Create a PostgreSQL database (for example, a Neon database connected to your Vercel project), then create your private environment file:
    ```bash
    cp .env.example .env
    ```
 
-   Set a unique `AUTH_SECRET` (at least 32 characters) and unique admin and agent passwords (at least 16 characters) in `.env`. For example, generate secrets with `openssl rand -base64 48`. Never commit or share `.env`.
+   Set `DATABASE_URL` to the pooled PostgreSQL connection string and `DIRECT_URL` to the direct, non-pooled connection string from your database provider. Set a unique `AUTH_SECRET` (at least 32 characters) and unique admin and agent passwords (at least 16 characters). Generate secrets with `openssl rand -base64 48`. Never commit or share `.env`.
 
-3. Create the new local database and apply the schema:
+3. Apply the schema migrations:
    ```bash
-   npx prisma db push
+   npx prisma migrate deploy
    ```
 
 4. Create the admin and agent accounts using the credentials from `.env`:
@@ -52,11 +52,22 @@ Project System is a small attendance and reporting application for teams to chec
    http://localhost:3000
    ```
 
-The SQLite database is created at `prisma/project-system.db` and is excluded from Git. To use an existing database, back it up before changing `DATABASE_URL`.
-
 ## Credentials and security
 
-The seed script requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD` in `.env`. Seeding an existing account updates its password to the configured value. The application also requires `AUTH_SECRET`; it does not fall back to a known default.
+The seed script requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD`. Seeding an existing account updates its password to the configured value. The application also requires `AUTH_SECRET`; it does not fall back to a known default.
+
+## Deploy to Vercel
+
+1. Connect this GitHub repository to Vercel and add a Neon PostgreSQL database, or connect an existing PostgreSQL database.
+2. In the Vercel project's **Settings → Environment Variables**, configure `DATABASE_URL` (pooled connection), `DIRECT_URL` (direct, non-pooled connection), `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD`. Add production credentials to the Production environment only; use a separate database and credentials for Preview if needed.
+3. Deploy. Vercel runs `vercel-build`, which applies the committed Prisma migrations before building the app.
+4. Link the project with the Vercel CLI, then create the accounts in the production database by running:
+   ```bash
+   vercel env run --environment=production -- npm run seed
+   ```
+   This uses the production environment variables without copying database credentials into a local file. The seed command is safe to repeat, but updates existing account passwords to the configured values.
+
+Do not use a local SQLite database for a Vercel deployment: its filesystem is not persistent or shared between serverless instances.
 
 ## Project naming
 
