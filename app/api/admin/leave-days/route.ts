@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     where: {
       userId_date: {
         userId: agent.id,
-        date: body.date,
+        date: leaveRequest.date,
       },
     },
     update: { type: leaveRequest.type as (typeof leaveTypes)[number] },
