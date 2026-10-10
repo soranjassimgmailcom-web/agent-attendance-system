@@ -5,28 +5,13 @@ export default function HomePage() {
     <main className="landing-page">
       <div className="home-shell">
         <header className="home-header">
-          <Image
-            className="government-logo"
-            src="/government-of-kurdistan.png"
-            alt="Kurdistan Regional Government emblem"
-            width={100}
-            height={100}
-            priority
-          />
-          <Image
-            className="home-runaki-logo"
-            src="https://agentproject-three.vercel.app/runaki-logo.jpeg"
-            alt="Runaki logo"
-            width={100}
-            height={100}
-            priority
-          />
+          <Image className="government-logo" src="/logo.svg" alt="Project System logo" width={100} height={100} priority />
         </header>
 
         <section className="hero-card home-hero">
-          <h1>Agent Audince In Bardarash Co</h1>
+          <h1>Project System</h1>
           <p className="subtitle">
-            One place for agent check-ins, check-outs, and monthly attendance reports.
+            One place for attendance tracking, daily updates, and monthly performance reports.
           </p>
 
           <div className="hero-actions">
@@ -40,7 +25,7 @@ export default function HomePage() {
           </p>
         </section>
 
-        <footer className="landing-footer">Baardarash Co</footer>
+        <footer className="landing-footer">Project System</footer>
       </div>
     </main>
   );

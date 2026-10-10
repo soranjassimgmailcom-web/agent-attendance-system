@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Bardarash Attendance",
-  description: "Attendance system for agent check-in and monthly report export",
+  title: "Project System",
+  description: "Project System for attendance tracking, team reporting, and monthly exports",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

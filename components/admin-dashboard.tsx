@@ -93,7 +93,7 @@ export function AdminDashboard() {
             <img src="/logo.svg" alt="company logo" width={60} height={45} />
             <div>
               <p className="eyebrow">Admin Dashboard</p>
-              <h1>Agent Audince</h1>
+              <h1>Project System</h1>
             </div>
           </div>
         </div>
