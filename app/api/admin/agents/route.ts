@@ -10,18 +10,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const agents = await prisma.user.findMany({
-    where: { role: "AGENT" },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      isActive: true,
-    },
-  });
-
   const { searchParams } = new URL(request.url);
   const month = searchParams.get("month") || new Date().toISOString().slice(0, 7);
 
@@ -29,7 +17,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Month must use YYYY-MM format" }, { status: 400 });
   }
 
-  const [attendance, leaveDays] = await Promise.all([
+  const [agents, attendance, leaveDays] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: "AGENT" },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+      },
+    }),
     prisma.attendance.findMany({
       where: {
         date: {

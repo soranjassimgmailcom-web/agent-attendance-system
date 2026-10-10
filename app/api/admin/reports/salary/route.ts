@@ -59,6 +59,8 @@ export async function GET(request: Request) {
 
   let monthHours = 0;
   let monthSalary = 0;
+  let monthVacationDays = 0;
+  let monthAuthorizedAbsenceDays = 0;
 
   agents.forEach((agent) => {
     const completedShifts = agent.attendance.filter(
@@ -70,19 +72,23 @@ export async function GET(request: Request) {
     }, 0);
     const hoursWorked = workedMilliseconds / 3_600_000;
     const salary = Math.round(hoursWorked * HOURLY_RATE_IQD);
+    const vacationDays = agent.leaveDays.filter((leaveDay) => leaveDay.type === "VACATION").length;
+    const authorizedAbsenceDays = agent.leaveDays.filter(
+      (leaveDay) => leaveDay.type === "AUTHORIZED_ABSENCE",
+    ).length;
 
     monthHours += hoursWorked;
     monthSalary += salary;
+    monthVacationDays += vacationDays;
+    monthAuthorizedAbsenceDays += authorizedAbsenceDays;
 
     sheet.addRow({
       name: agent.name,
       email: agent.email,
       account: agent.isActive ? "Active" : "Deactivated",
       days: completedShifts.length,
-      vacationDays: agent.leaveDays.filter((leaveDay) => leaveDay.type === "VACATION").length,
-      authorizedAbsenceDays: agent.leaveDays.filter(
-        (leaveDay) => leaveDay.type === "AUTHORIZED_ABSENCE",
-      ).length,
+      vacationDays,
+      authorizedAbsenceDays,
       hours: Math.round(hoursWorked * 100) / 100,
       rate: HOURLY_RATE_IQD,
       salary,
@@ -91,6 +97,8 @@ export async function GET(request: Request) {
 
   const totalRow = sheet.addRow({
     name: "MONTH TOTAL",
+    vacationDays: monthVacationDays,
+    authorizedAbsenceDays: monthAuthorizedAbsenceDays,
     hours: Math.round(monthHours * 100) / 100,
     salary: monthSalary,
   });
