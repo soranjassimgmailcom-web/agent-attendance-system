@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { readApiResponse } from "@/lib/client-api";
+import { activityCategories, AgentJobRole, getAgentJobRoleLabel } from "@/lib/agent-roles";
 
 type AttendanceEntry = {
   id: string;
@@ -41,6 +42,7 @@ export function AgentDashboard({
   const [todayLeave, setTodayLeave] = useState<"VACATION" | "AUTHORIZED_ABSENCE" | null>(null);
   const [history, setHistory] = useState<AttendanceEntry[]>([]);
   const [activities, setActivities] = useState<AgentActivity[]>([]);
+  const [jobRole, setJobRole] = useState<AgentJobRole>("UNASSIGNED");
   const [activityMonthCount, setActivityMonthCount] = useState(0);
   const [activePage, setActivePage] = useState<"dashboard" | "activities">("dashboard");
   const [activityForm, setActivityForm] = useState({ date: getLocalDate(), title: "", details: "" });
@@ -70,7 +72,11 @@ export function AgentDashboard({
           records: AttendanceEntry[];
           leaveDays: Array<{ id: string; date: string; type: "VACATION" | "AUTHORIZED_ABSENCE" }>;
         }>(historyResponse),
-        readApiResponse<{ activities: AgentActivity[]; monthCount: number }>(activitiesResponse),
+        readApiResponse<{
+          activities: AgentActivity[];
+          monthCount: number;
+          jobRole: AgentJobRole;
+        }>(activitiesResponse),
       ]);
 
       setTodayRecord(statusData.record);
@@ -87,6 +93,7 @@ export function AgentDashboard({
       ].sort((left, right) => right.date.localeCompare(left.date)));
       setActivities(activitiesData.activities);
       setActivityMonthCount(activitiesData.monthCount);
+      setJobRole(activitiesData.jobRole);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load your dashboard");
     } finally {
@@ -378,8 +385,14 @@ export function AgentDashboard({
           <div className="agent-activities-page">
             <section className="panel agent-activity-form-panel">
               <div className="agent-section-heading">
-                <div><p className="eyebrow">Keep your team updated</p><h2>Record an activity</h2></div>
+                <div>
+                  <p className="eyebrow">{jobRole === "UNASSIGNED" ? "Contact your administrator to get started" : getAgentJobRoleLabel(jobRole)}</p>
+                  <h2>Record an activity</h2>
+                </div>
               </div>
+              {jobRole === "UNASSIGNED" ? (
+                <p className="agent-empty-state">Your responsibility role has not been assigned yet, so activity categories are not available.</p>
+              ) : (
               <form className="stack-form" onSubmit={handleSaveActivity}>
                 <label>
                   Date
@@ -392,14 +405,17 @@ export function AgentDashboard({
                   />
                 </label>
                 <label>
-                  Activity
-                  <input
+                  Activity category
+                  <select
                     value={activityForm.title}
                     onChange={(event) => setActivityForm({ ...activityForm, title: event.target.value })}
-                    maxLength={120}
-                    placeholder="What did you work on?"
                     required
-                  />
+                  >
+                    <option value="" disabled>Select an activity</option>
+                    {activityCategories[jobRole].map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
                 </label>
                 <label>
                   Details <span className="agent-optional-label">Optional</span>
@@ -411,10 +427,11 @@ export function AgentDashboard({
                     placeholder="Add notes or a short description"
                   />
                 </label>
-                <button className="primary-btn" type="submit" disabled={savingActivity}>
+                <button className="primary-btn" type="submit" disabled={savingActivity || !activityForm.title}>
                   {savingActivity ? "Saving..." : "Save activity"}
                 </button>
               </form>
+              )}
             </section>
 
             <section className="panel">
