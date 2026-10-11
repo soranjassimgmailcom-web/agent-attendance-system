@@ -23,6 +23,9 @@ model User {
   createdAt  DateTime     @default(now())
   attendance Attendance[]
   leaveDays  LeaveDay[]
+  activities AgentActivity[]
+  profileImage Bytes?
+  profileImageType String?
 }
 
 model Attendance {
@@ -48,5 +51,19 @@ model LeaveDay {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
+  @@index([date])
+}
+
+model AgentActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String
+  title     String
+  details   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
   @@index([date])
 }
