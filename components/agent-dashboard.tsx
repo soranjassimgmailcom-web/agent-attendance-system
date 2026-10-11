@@ -20,6 +20,14 @@ type AgentActivity = {
   createdAt: string;
 };
 
+type TeamActivity = AgentActivity & {
+  user: {
+    id: string;
+    name: string;
+    jobRole: AgentJobRole;
+  };
+};
+
 function getLocalDate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -44,8 +52,13 @@ export function AgentDashboard({
   const [activities, setActivities] = useState<AgentActivity[]>([]);
   const [jobRole, setJobRole] = useState<AgentJobRole>("UNASSIGNED");
   const [activityMonthCount, setActivityMonthCount] = useState(0);
-  const [activePage, setActivePage] = useState<"dashboard" | "activities">("dashboard");
+  const [activePage, setActivePage] = useState<"dashboard" | "activities" | "team">("dashboard");
   const [activityForm, setActivityForm] = useState({ date: getLocalDate(), title: "", details: "" });
+  const [teamActivities, setTeamActivities] = useState<TeamActivity[]>([]);
+  const [teamMonth, setTeamMonth] = useState(() => getLocalDate().slice(0, 7));
+  const [teamRoleFilter, setTeamRoleFilter] = useState<AgentJobRole | "ALL">("ALL");
+  const [loadingTeamActivities, setLoadingTeamActivities] = useState(false);
+  const [teamActivitiesLoaded, setTeamActivitiesLoaded] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -157,6 +170,33 @@ export function AgentDashboard({
     }
   }
 
+  async function loadTeamActivities(month: string) {
+    setLoadingTeamActivities(true);
+    setError("");
+
+    try {
+      const response = await fetch(`/api/activities/team?month=${month}`, {
+        credentials: "include",
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
+      const data = await readApiResponse<{ activities: TeamActivity[] }>(response);
+      setTeamActivities(data.activities);
+      setTeamActivitiesLoaded(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load team activities");
+    } finally {
+      setLoadingTeamActivities(false);
+    }
+  }
+
+  function openTeamActivities() {
+    setActivePage("team");
+    if (!teamActivitiesLoaded) {
+      loadTeamActivities(teamMonth);
+    }
+  }
+
   async function handleProfileImage(event: React.ChangeEvent<HTMLInputElement>) {
     const image = event.target.files?.[0];
     event.target.value = "";
@@ -253,6 +293,14 @@ export function AgentDashboard({
           >
             <span aria-hidden="true">▤</span> My Activities
           </button>
+          <button
+            type="button"
+            className={activePage === "team" ? "agent-nav-link active" : "agent-nav-link"}
+            onClick={openTeamActivities}
+            aria-current={activePage === "team" ? "page" : undefined}
+          >
+            <span aria-hidden="true">◎</span> Team Activities
+          </button>
         </nav>
 
         <div className="agent-sidebar-footer">
@@ -267,7 +315,11 @@ export function AgentDashboard({
         <header className="agent-page-header">
           <div>
             <p className="eyebrow">Agent workspace</p>
-            <h1>{activePage === "dashboard" ? `Welcome, ${firstName}` : "My Activities"}</h1>
+            <h1>
+              {activePage === "dashboard"
+                ? `Welcome, ${firstName}`
+                : activePage === "team" ? "Team Activities" : "My Activities"}
+            </h1>
           </div>
           <button className="secondary-btn agent-header-logout" type="button" onClick={handleLogout}>
             Logout
@@ -381,7 +433,7 @@ export function AgentDashboard({
               </div>
             </section>
           </>
-        ) : (
+        ) : activePage === "activities" ? (
           <div className="agent-activities-page">
             <section className="panel agent-activity-form-panel">
               <div className="agent-section-heading">
@@ -456,6 +508,84 @@ export function AgentDashboard({
               )}
             </section>
           </div>
+        ) : (
+          <section className="panel agent-team-panel">
+            <div className="agent-section-heading agent-team-heading">
+              <div>
+                <p className="eyebrow">Shared with your team</p>
+                <h2>What everyone is working on</h2>
+              </div>
+              <label className="agent-team-month">
+                <span>Month</span>
+                <input
+                  type="month"
+                  value={teamMonth}
+                  onChange={(event) => {
+                    const month = event.target.value;
+                    setTeamMonth(month);
+                    if (month) loadTeamActivities(month);
+                  }}
+                />
+              </label>
+            </div>
+
+            <div className="agent-team-filters" aria-label="Filter team activities by role">
+              <button
+                type="button"
+                className={teamRoleFilter === "ALL" ? "agent-filter-chip active" : "agent-filter-chip"}
+                onClick={() => setTeamRoleFilter("ALL")}
+                aria-pressed={teamRoleFilter === "ALL"}
+              >
+                Everyone
+              </button>
+              {agentJobRoles.filter((role) => role.value !== "UNASSIGNED").map((role) => (
+                <button
+                  type="button"
+                  key={role.value}
+                  className={`agent-filter-chip role-${role.value.toLowerCase()}${teamRoleFilter === role.value ? " active" : ""}`}
+                  onClick={() => setTeamRoleFilter(role.value)}
+                  aria-pressed={teamRoleFilter === role.value}
+                >
+                  {role.label}
+                </button>
+              ))}
+            </div>
+
+            {loadingTeamActivities ? (
+              <p className="agent-empty-state" role="status">Loading team activities…</p>
+            ) : teamActivities.filter((activity) => teamRoleFilter === "ALL" || activity.user.jobRole === teamRoleFilter).length === 0 ? (
+              <p className="agent-empty-state">
+                No team activities found for {teamRoleFilter === "ALL"
+                  ? new Date(`${teamMonth}-01T00:00:00`).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+                  : getAgentJobRoleLabel(teamRoleFilter)}.
+              </p>
+            ) : (
+              <div className="agent-team-activity-grid">
+                {teamActivities
+                  .filter((activity) => teamRoleFilter === "ALL" || activity.user.jobRole === teamRoleFilter)
+                  .map((activity) => (
+                    <article
+                      className={`agent-team-activity-card role-${activity.user.jobRole.toLowerCase()}`}
+                      key={activity.id}
+                    >
+                      <div className="agent-team-card-top">
+                        <span className="agent-team-avatar">{getInitials(activity.user.name)}</span>
+                        <div className="agent-team-person">
+                          <strong>{activity.user.name}</strong>
+                          <span>{getAgentJobRoleLabel(activity.user.jobRole)}</span>
+                        </div>
+                        <time dateTime={activity.date}>{activity.date}</time>
+                      </div>
+                      <span className="agent-activity-category">{activity.title}</span>
+                      {activity.details ? <p>{activity.details}</p> : null}
+                    </article>
+                  ))}
+              </div>
+            )}
+            <p className="agent-team-note">
+              Showing up to 500 active agents&apos; activities for the selected month.
+            </p>
+          </section>
         )}
       </div>
     </main>
