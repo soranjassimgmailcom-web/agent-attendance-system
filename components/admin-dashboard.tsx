@@ -34,10 +34,24 @@ type AttendanceRecord = {
   };
 };
 
+type AgentActivity = {
+  id: string;
+  date: string;
+  title: string;
+  details: string | null;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
 export function AdminDashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [leaveDays, setLeaveDays] = useState<LeaveDay[]>([]);
+  const [activities, setActivities] = useState<AgentActivity[]>([]);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [selectedAgentId, setSelectedAgentId] = useState("");
   const [leaveDate, setLeaveDate] = useState(() => {
@@ -56,20 +70,31 @@ export function AdminDashboard() {
 
   async function loadData() {
     try {
-      const response = await fetch(`/api/admin/agents?month=${currentMonth}`, {
-        credentials: "include",
-        cache: "no-store",
-        headers: { Accept: "application/json" },
-      });
-      const data = await readApiResponse<{
-        agents: Agent[];
-        attendance: AttendanceRecord[];
-        leaveDays: LeaveDay[];
-      }>(response);
+      const [response, activityResponse] = await Promise.all([
+        fetch(`/api/admin/agents?month=${currentMonth}`, {
+          credentials: "include",
+          cache: "no-store",
+          headers: { Accept: "application/json" },
+        }),
+        fetch(`/api/admin/activities?month=${currentMonth}`, {
+          credentials: "include",
+          cache: "no-store",
+          headers: { Accept: "application/json" },
+        }),
+      ]);
+      const [data, activityData] = await Promise.all([
+        readApiResponse<{
+          agents: Agent[];
+          attendance: AttendanceRecord[];
+          leaveDays: LeaveDay[];
+        }>(response),
+        readApiResponse<{ activities: AgentActivity[] }>(activityResponse),
+      ]);
 
       setAgents(data.agents);
       setAttendance(data.attendance);
       setLeaveDays(data.leaveDays);
+      setActivities(activityData.activities);
       if (!selectedAgentId || !data.agents.some((agent) => agent.id === selectedAgentId && agent.isActive)) {
         setSelectedAgentId(data.agents.find((agent) => agent.isActive)?.id ?? "");
       }
@@ -185,6 +210,10 @@ export function AdminDashboard() {
 
   function downloadSalaryReport() {
     window.location.href = `/api/admin/reports/salary?month=${currentMonth}`;
+  }
+
+  function downloadActivityReport() {
+    window.location.href = `/api/admin/reports/activities?month=${currentMonth}`;
   }
 
   return (
@@ -312,6 +341,9 @@ export function AdminDashboard() {
             <button className="secondary-btn" onClick={downloadSalaryReport}>
               Salary Excel
             </button>
+            <button className="secondary-btn" onClick={downloadActivityReport}>
+              Activities Excel
+            </button>
           </div>
         </div>
       </section>
@@ -379,6 +411,43 @@ export function AdminDashboard() {
               ))}
               {leaveDays.length === 0 ? (
                 <tr><td colSpan={3}>No days away recorded for this month.</td></tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="agent-section-heading">
+          <div>
+            <p className="eyebrow">Team work log</p>
+            <h2>Agent Activities · {currentMonth}</h2>
+          </div>
+          <button className="secondary-btn" type="button" onClick={downloadActivityReport}>
+            Download Excel
+          </button>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Date</th>
+                <th>Activity</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activities.map((activity) => (
+                <tr key={activity.id}>
+                  <td>{activity.user.name}</td>
+                  <td>{activity.date}</td>
+                  <td>{activity.title}</td>
+                  <td>{activity.details || "--"}</td>
+                </tr>
+              ))}
+              {activities.length === 0 ? (
+                <tr><td colSpan={4}>No agent activities recorded for this month.</td></tr>
               ) : null}
             </tbody>
           </table>
