@@ -25,12 +25,13 @@ type AgentActivity = {
   createdAt: string;
 };
 
-type TeamActivity = AgentActivity & {
-  user: {
-    id: string;
-    name: string;
-    jobRole: AgentJobRole;
-  };
+type TeamAgent = {
+  id: string;
+  name: string;
+  jobRole: AgentJobRole;
+  activityCount: number;
+  categoryCounts: Array<{ title: string; count: number }>;
+  recentActivities: AgentActivity[];
 };
 
 function getLocalDate() {
@@ -59,7 +60,7 @@ export function AgentDashboard({
   const [activityMonthCount, setActivityMonthCount] = useState(0);
   const [activePage, setActivePage] = useState<"dashboard" | "activities" | "team">("dashboard");
   const [activityForm, setActivityForm] = useState({ date: getLocalDate(), title: "", details: "" });
-  const [teamActivities, setTeamActivities] = useState<TeamActivity[]>([]);
+  const [teamAgents, setTeamAgents] = useState<TeamAgent[]>([]);
   const [teamMonth, setTeamMonth] = useState(() => getLocalDate().slice(0, 7));
   const [teamRoleFilter, setTeamRoleFilter] = useState<AgentJobRole | "ALL">("ALL");
   const [loadingTeamActivities, setLoadingTeamActivities] = useState(false);
@@ -185,8 +186,8 @@ export function AgentDashboard({
         cache: "no-store",
         headers: { Accept: "application/json" },
       });
-      const data = await readApiResponse<{ activities: TeamActivity[] }>(response);
-      setTeamActivities(data.activities);
+      const data = await readApiResponse<{ agents: TeamAgent[] }>(response);
+      setTeamAgents(data.agents);
       setTeamActivitiesLoaded(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load team activities");
@@ -558,38 +559,62 @@ export function AgentDashboard({
 
             {loadingTeamActivities ? (
               <p className="agent-empty-state" role="status">Loading team activities…</p>
-            ) : teamActivities.filter((activity) => teamRoleFilter === "ALL" || activity.user.jobRole === teamRoleFilter).length === 0 ? (
+            ) : teamAgents.filter((agent) => teamRoleFilter === "ALL" || agent.jobRole === teamRoleFilter).length === 0 ? (
               <p className="agent-empty-state">
-                No team activities found for {teamRoleFilter === "ALL"
+                No agents found for {teamRoleFilter === "ALL"
                   ? new Date(`${teamMonth}-01T00:00:00`).toLocaleDateString(undefined, { month: "long", year: "numeric" })
                   : getAgentJobRoleLabel(teamRoleFilter)}.
               </p>
             ) : (
               <div className="agent-team-activity-grid">
-                {teamActivities
-                  .filter((activity) => teamRoleFilter === "ALL" || activity.user.jobRole === teamRoleFilter)
-                  .map((activity) => (
+                {teamAgents
+                  .filter((agent) => teamRoleFilter === "ALL" || agent.jobRole === teamRoleFilter)
+                  .map((agent) => (
                     <article
-                      className={`agent-team-activity-card role-${activity.user.jobRole.toLowerCase()}`}
-                      key={activity.id}
+                      className={`agent-team-activity-card role-${agent.jobRole.toLowerCase()}`}
+                      key={agent.id}
                     >
-                      <div className="agent-team-card-top">
-                        <span className="agent-team-avatar">{getInitials(activity.user.name)}</span>
-                        <div className="agent-team-person">
-                          <strong>{activity.user.name}</strong>
-                          <span>{getAgentJobRoleLabel(activity.user.jobRole)}</span>
-                        </div>
-                        <time dateTime={activity.date}>{activity.date}</time>
+                      <div className="agent-team-card-profile">
+                        <span className="agent-team-avatar">{getInitials(agent.name)}</span>
+                        <strong className="agent-team-name">{agent.name}</strong>
+                        <span className="agent-team-role">{getAgentJobRoleLabel(agent.jobRole)}</span>
                       </div>
-                      <span className="agent-activity-category">{activity.title}</span>
-                      {activity.details ? <p>{activity.details}</p> : null}
+                      <div className="agent-team-total">
+                        <span className="agent-team-total-icon" aria-hidden="true">▤</span>
+                        <div>
+                          <strong>{agent.activityCount}</strong>
+                          <span>{agent.activityCount === 1 ? "Activity logged" : "Activities logged"}</span>
+                        </div>
+                      </div>
+                      <div className="agent-team-category-list">
+                        {activityCategories[agent.jobRole].map((category, index) => {
+                          const count = agent.categoryCounts.find((entry) => entry.title === category)?.count ?? 0;
+                          return (
+                            <div className="agent-team-category-row" key={category}>
+                              <span className={`agent-category-mark mark-${index % 6}`} aria-hidden="true" />
+                              <span className="agent-team-category-name">{category}</span>
+                              <strong className={`agent-team-category-count count-${index % 6}`}>{count}</strong>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {agent.recentActivities.length > 0 ? (
+                        <div className="agent-team-recent">
+                          <span className="agent-team-recent-label">LATEST UPDATE</span>
+                          <strong>{agent.recentActivities[0].title}</strong>
+                          <time dateTime={agent.recentActivities[0].date}>{agent.recentActivities[0].date}</time>
+                        </div>
+                      ) : (
+                        <div className="agent-team-recent agent-team-no-activity">
+                          <span className="agent-team-recent-label">THIS MONTH</span>
+                          <span>No activity logged yet</span>
+                        </div>
+                      )}
                     </article>
                   ))}
               </div>
             )}
-            <p className="agent-team-note">
-              Showing up to 500 active agents&apos; activities for the selected month.
-            </p>
+            <p className="agent-team-note">Activity totals and category counts update for the selected month.</p>
           </section>
         )}
       </div>
