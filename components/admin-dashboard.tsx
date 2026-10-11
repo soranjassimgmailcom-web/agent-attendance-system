@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { readApiResponse } from "@/lib/client-api";
+import { AgentJobRole, agentJobRoles, getAgentJobRoleLabel } from "@/lib/agent-roles";
 
 type Agent = {
   id: string;
   name: string;
   email: string;
   role: "ADMIN" | "AGENT";
+  jobRole: AgentJobRole;
   isActive: boolean;
 };
 
@@ -19,6 +21,7 @@ type LeaveDay = {
     id: string;
     name: string;
     email: string;
+    jobRole: AgentJobRole;
   };
 };
 
@@ -52,7 +55,7 @@ export function AdminDashboard() {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [leaveDays, setLeaveDays] = useState<LeaveDay[]>([]);
   const [activities, setActivities] = useState<AgentActivity[]>([]);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", jobRole: "" as AgentJobRole | "" });
   const [selectedAgentId, setSelectedAgentId] = useState("");
   const [leaveDate, setLeaveDate] = useState(() => {
     const today = new Date();
@@ -127,7 +130,7 @@ export function AdminDashboard() {
       await readApiResponse<{ message: string }>(response);
 
       setSuccess("Agent account created successfully");
-      setForm({ name: "", email: "", password: "" });
+      setForm({ name: "", email: "", password: "", jobRole: "" });
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create agent. Please try again.");
@@ -141,6 +144,32 @@ export function AdminDashboard() {
       !window.confirm(`Deactivate ${agent.name}? Past attendance and time-off records will be kept.`)
     ) {
       return;
+    }
+
+    async function handleAssignRole(agent: Agent, jobRole: AgentJobRole) {
+      setError("");
+      setSuccess("");
+      setBusyAgentId(agent.id);
+
+      try {
+        const response = await fetch(`/api/admin/agents/${agent.id}`, {
+          method: "PATCH",
+          credentials: "include",
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ jobRole }),
+        });
+        const data = await readApiResponse<{ message: string }>(response);
+        setSuccess(data.message);
+        await loadData();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not assign the agent role.");
+      } finally {
+        setBusyAgentId("");
+      }
     }
 
     setError("");
@@ -272,7 +301,21 @@ export function AdminDashboard() {
               />
             </label>
 
-            <button className="primary-btn" type="submit">
+            <label>
+              Responsibility role
+              <select
+                value={form.jobRole}
+                onChange={(event) => setForm({ ...form, jobRole: event.target.value as AgentJobRole | "" })}
+                required
+              >
+                <option value="" disabled>Select a role</option>
+                {agentJobRoles.filter((jobRole) => jobRole.value !== "UNASSIGNED").map((jobRole) => (
+                  <option key={jobRole.value} value={jobRole.value}>{jobRole.label}</option>
+                ))}
+              </select>
+            </label>
+
+            <button className="primary-btn" type="submit" disabled={!form.jobRole}>
               Add Agent
             </button>
           </form>
@@ -359,6 +402,7 @@ export function AdminDashboard() {
               <tr>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Responsibility role</th>
                 <th>Account</th>
                 <th>Action</th>
               </tr>
@@ -368,6 +412,20 @@ export function AdminDashboard() {
                 <tr key={agent.id}>
                   <td>{agent.name}</td>
                   <td>{agent.email}</td>
+                  <td>
+                    <select
+                      aria-label={`Responsibility role for ${agent.name}`}
+                      value={agent.jobRole}
+                      onChange={(event) => handleAssignRole(agent, event.target.value as AgentJobRole)}
+                      disabled={busyAgentId === agent.id}
+                    >
+                      {agentJobRoles.map((jobRole) => (
+                        <option key={jobRole.value} value={jobRole.value}>
+                          {jobRole.value === "UNASSIGNED" ? "Assign a role" : jobRole.label}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   <td>{agent.isActive ? "Active" : "Deactivated"}</td>
                   <td>
                     <button
@@ -384,7 +442,7 @@ export function AdminDashboard() {
                   </td>
                 </tr>
               ))}
-              {agents.length === 0 ? <tr><td colSpan={4}>No agents yet.</td></tr> : null}
+              {agents.length === 0 ? <tr><td colSpan={5}>No agents yet.</td></tr> : null}
             </tbody>
           </table>
         </div>
@@ -397,6 +455,7 @@ export function AdminDashboard() {
             <thead>
               <tr>
                 <th>Agent</th>
+                <th>Role</th>
                 <th>Date</th>
                 <th>Type</th>
               </tr>
@@ -441,13 +500,14 @@ export function AdminDashboard() {
               {activities.map((activity) => (
                 <tr key={activity.id}>
                   <td>{activity.user.name}</td>
+                  <td>{getAgentJobRoleLabel(activity.user.jobRole)}</td>
                   <td>{activity.date}</td>
                   <td>{activity.title}</td>
                   <td>{activity.details || "--"}</td>
                 </tr>
               ))}
               {activities.length === 0 ? (
-                <tr><td colSpan={4}>No agent activities recorded for this month.</td></tr>
+                <tr><td colSpan={5}>No agent activities recorded for this month.</td></tr>
               ) : null}
             </tbody>
           </table>

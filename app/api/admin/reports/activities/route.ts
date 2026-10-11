@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
+import { AgentJobRole, getAgentJobRoleLabel } from "@/lib/agent-roles";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
     where: { date: { gte: start, lte: end } },
     include: {
       user: {
-        select: { name: true, email: true },
+        select: { name: true, email: true, jobRole: true },
       },
     },
     orderBy: [{ date: "asc" }, { createdAt: "asc" }],
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
   const sheet = workbook.addWorksheet("Agent Activities");
   sheet.columns = [
     { header: "Agent", key: "name", width: 26 },
+    { header: "Role", key: "role", width: 28 },
     { header: "Email", key: "email", width: 32 },
     { header: "Date", key: "date", width: 15 },
     { header: "Activity", key: "title", width: 36 },
@@ -43,6 +45,7 @@ export async function GET(request: Request) {
   activities.forEach((activity) => {
     sheet.addRow({
       name: activity.user.name,
+      role: getAgentJobRoleLabel(activity.user.jobRole as AgentJobRole),
       email: activity.user.email,
       date: activity.date,
       title: activity.title,

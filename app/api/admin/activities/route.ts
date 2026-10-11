@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     where: { date: { startsWith: month } },
     include: {
       user: {
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, email: true, jobRole: true },
       },
     },
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
