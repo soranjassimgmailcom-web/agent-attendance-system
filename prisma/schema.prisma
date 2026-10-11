@@ -38,6 +38,11 @@ model User {
   activities       AgentActivity[]
   profileImage     Bytes?
   profileImageType String?
+  sentAnnouncements Announcement[] @relation("AnnouncementSender")
+  announcementReactions AnnouncementReaction[]
+  announcementReads AnnouncementRead[]
+  sentMessages     ChatMessage[] @relation("ChatMessageSender")
+  receivedMessages ChatMessage[] @relation("ChatMessageReceiver")
 }
 
 model Attendance {
@@ -78,4 +83,57 @@ model AgentActivity {
 
   @@index([userId, date])
   @@index([date])
+}
+
+model Announcement {
+  id        String                 @id @default(cuid())
+  title     String
+  message   String
+  senderId  String
+  createdAt DateTime               @default(now())
+  sender    User                   @relation("AnnouncementSender", fields: [senderId], references: [id], onDelete: Restrict)
+  reactions AnnouncementReaction[]
+  reads     AnnouncementRead[]
+
+  @@index([createdAt])
+}
+
+model AnnouncementReaction {
+  id             String       @id @default(cuid())
+  announcementId String
+  userId         String
+  reaction       String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId])
+  @@index([announcementId])
+}
+
+model AnnouncementRead {
+  id             String       @id @default(cuid())
+  announcementId String
+  userId         String
+  readAt         DateTime     @default(now())
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId])
+  @@index([userId, readAt])
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  body       String
+  createdAt  DateTime @default(now())
+  readAt     DateTime?
+  sender     User     @relation("ChatMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ChatMessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId, createdAt])
+  @@index([receiverId, readAt])
 }
