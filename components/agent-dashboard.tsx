@@ -41,6 +41,7 @@ export function AgentDashboard({
   const [todayLeave, setTodayLeave] = useState<"VACATION" | "AUTHORIZED_ABSENCE" | null>(null);
   const [history, setHistory] = useState<AttendanceEntry[]>([]);
   const [activities, setActivities] = useState<AgentActivity[]>([]);
+  const [activityMonthCount, setActivityMonthCount] = useState(0);
   const [activePage, setActivePage] = useState<"dashboard" | "activities">("dashboard");
   const [activityForm, setActivityForm] = useState({ date: getLocalDate(), title: "", details: "" });
   const [profileImageUrl, setProfileImageUrl] = useState("");
@@ -69,7 +70,7 @@ export function AgentDashboard({
           records: AttendanceEntry[];
           leaveDays: Array<{ id: string; date: string; type: "VACATION" | "AUTHORIZED_ABSENCE" }>;
         }>(historyResponse),
-        readApiResponse<{ activities: AgentActivity[] }>(activitiesResponse),
+        readApiResponse<{ activities: AgentActivity[]; monthCount: number }>(activitiesResponse),
       ]);
 
       setTodayRecord(statusData.record);
@@ -85,6 +86,7 @@ export function AgentDashboard({
         })),
       ].sort((left, right) => right.date.localeCompare(left.date)));
       setActivities(activitiesData.activities);
+      setActivityMonthCount(activitiesData.monthCount);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load your dashboard");
     } finally {
@@ -184,7 +186,6 @@ export function AgentDashboard({
     window.location.href = "/login";
   }
 
-  const activitiesThisMonth = activities.filter((activity) => activity.date.startsWith(getLocalDate().slice(0, 7))).length;
   const firstName = user.name.trim().split(/\s+/)[0] || user.name;
 
   return (
@@ -274,7 +275,7 @@ export function AgentDashboard({
             <section className="agent-stat-grid" aria-label="Monthly summary">
               <article className="agent-stat-card">
                 <span className="agent-stat-icon">▤</span>
-                <div><span>Activities this month</span><strong>{activitiesThisMonth}</strong></div>
+                <div><span>Activities this month</span><strong>{activityMonthCount}</strong></div>
               </article>
               <article className="agent-stat-card">
                 <span className="agent-stat-icon">✓</span>

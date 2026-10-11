@@ -18,13 +18,21 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const activities = await prisma.agentActivity.findMany({
-    where: { userId: session.userId },
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    take: 200,
-  });
+  const [activities, monthCount] = await Promise.all([
+    prisma.agentActivity.findMany({
+      where: { userId: session.userId },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      take: 200,
+    }),
+    prisma.agentActivity.count({
+      where: {
+        userId: session.userId,
+        date: { startsWith: new Date().toISOString().slice(0, 7) },
+      },
+    }),
+  ]);
 
-  return NextResponse.json({ activities });
+  return NextResponse.json({ activities, monthCount });
 }
 
 export async function POST(request: Request) {
