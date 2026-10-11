@@ -178,7 +178,9 @@ export function AgentDashboard({
 
   useEffect(() => {
     loadData();
-    loadNotifications(false);
+    loadNotifications(false).catch((err: unknown) => {
+      setError(err instanceof Error ? err.message : "Could not load announcements");
+    });
     fetch("/api/agent/profile-image", { credentials: "include", cache: "no-store" })
       .then((response) => {
         if (response.ok) {
@@ -459,9 +461,9 @@ export function AgentDashboard({
   return (
     <main className="agent-layout">
       <aside className="agent-sidebar">
-        <a className="agent-sidebar-brand" href="/agent" aria-label="Runaki agent dashboard">
-          <img src="/runaki-logo.png" alt="" />
-          <span>Runaki</span>
+        <a className="agent-sidebar-brand" href="/agent" aria-label="Acc Agent dashboard">
+          <span className="agent-brand-mark" aria-hidden="true">A</span>
+          <span>Acc Agent</span>
         </a>
 
         <div className="agent-profile">
@@ -475,16 +477,13 @@ export function AgentDashboard({
             {profileImageUrl ? (
               <img className="agent-avatar-image" src={profileImageUrl} alt="" />
             ) : (
-              <span>{getInitials(user.name)}</span>
+              <span>{getInitials(profileName)}</span>
             )}
           </button>
           <div className="agent-profile-info">
-            <strong>{user.name}</strong>
+            <strong>{profileName}</strong>
             <span>Agent</span>
           </div>
-          <label className="agent-photo-link" htmlFor="agent-profile-image">
-            {uploadingImage ? "Uploading..." : "Change photo"}
-          </label>
           <input
             ref={fileInputRef}
             id="agent-profile-image"
@@ -520,7 +519,46 @@ export function AgentDashboard({
             onClick={openTeamActivities}
             aria-current={activePage === "team" ? "page" : undefined}
           >
-            <span aria-hidden="true">◎</span> Team Activities
+            <span aria-hidden="true">◎</span> Team
+          </button>
+          <button
+            type="button"
+            className={activePage === "notifications" ? "agent-nav-link active" : "agent-nav-link"}
+            onClick={openNotifications}
+            aria-current={activePage === "notifications" ? "page" : undefined}
+          >
+            <span aria-hidden="true">♧</span> Notifications
+            {unreadAnnouncements > 0 ? <span className="agent-nav-badge">{unreadAnnouncements}</span> : null}
+          </button>
+          <button
+            type="button"
+            className={activePage === "messages" ? "agent-nav-link active" : "agent-nav-link"}
+            onClick={() => {
+              setActivePage("messages");
+              loadChatList();
+            }}
+            aria-current={activePage === "messages" ? "page" : undefined}
+          >
+            <span aria-hidden="true">✉</span> Chat
+          </button>
+          <button
+            type="button"
+            className={activePage === "reports" ? "agent-nav-link active" : "agent-nav-link"}
+            onClick={() => {
+              setActivePage("reports");
+              loadPersonalReport();
+            }}
+            aria-current={activePage === "reports" ? "page" : undefined}
+          >
+            <span aria-hidden="true">▧</span> My Reports
+          </button>
+          <button
+            type="button"
+            className={activePage === "profile" ? "agent-nav-link active" : "agent-nav-link"}
+            onClick={() => setActivePage("profile")}
+            aria-current={activePage === "profile" ? "page" : undefined}
+          >
+            <span aria-hidden="true">◉</span> Profile
           </button>
         </nav>
 
@@ -539,7 +577,12 @@ export function AgentDashboard({
             <h1>
               {activePage === "dashboard"
                 ? `Welcome, ${firstName}`
-                : activePage === "team" ? "Team Activities" : "My Activities"}
+                : activePage === "team" ? "Your Team"
+                  : activePage === "activities" ? "My Activities"
+                    : activePage === "profile" ? "My Profile"
+                      : activePage === "notifications" ? "Notifications"
+                        : activePage === "messages" ? "Team Chat"
+                          : "My Reports"}
             </h1>
           </div>
           <button className="secondary-btn agent-header-logout" type="button" onClick={handleLogout}>
