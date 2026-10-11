@@ -29,6 +29,7 @@ type TeamAgent = {
   id: string;
   name: string;
   jobRole: AgentJobRole;
+  hasProfileImage: boolean;
   activityCount: number;
   categoryCounts: Array<{ title: string; count: number }>;
   recentActivities: AgentActivity[];
@@ -198,9 +199,7 @@ export function AgentDashboard({
 
   function openTeamActivities() {
     setActivePage("team");
-    if (!teamActivitiesLoaded) {
-      loadTeamActivities(teamMonth);
-    }
+    loadTeamActivities(teamMonth);
   }
 
   async function handleProfileImage(event: React.ChangeEvent<HTMLInputElement>) {
@@ -575,7 +574,19 @@ export function AgentDashboard({
                       key={agent.id}
                     >
                       <div className="agent-team-card-profile">
-                        <span className="agent-team-avatar">{getInitials(agent.name)}</span>
+                        <span className="agent-team-avatar">
+                          {getInitials(agent.name)}
+                          {agent.hasProfileImage ? (
+                            <img
+                              src={`/api/activities/team/${agent.id}/profile-image`}
+                              alt=""
+                              loading="lazy"
+                              onError={(event) => {
+                                event.currentTarget.style.visibility = "hidden";
+                              }}
+                            />
+                          ) : null}
+                        </span>
                         <strong className="agent-team-name">{agent.name}</strong>
                         <span className="agent-team-role">{getAgentJobRoleLabel(agent.jobRole)}</span>
                       </div>

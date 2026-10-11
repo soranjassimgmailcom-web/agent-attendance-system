@@ -24,6 +24,7 @@ export async function GET(request: Request) {
         id: true,
         name: true,
         jobRole: true,
+        profileImageType: true,
         _count: {
           select: {
             activities: {
@@ -63,6 +64,7 @@ export async function GET(request: Request) {
     id: agent.id,
     name: agent.name,
     jobRole: agent.jobRole,
+    hasProfileImage: agent.profileImageType !== null,
     activityCount: agent._count.activities,
     categoryCounts: countsByAgent.get(agent.id) ?? [],
     recentActivities: agent.activities,
