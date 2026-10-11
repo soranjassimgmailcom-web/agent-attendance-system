@@ -50,11 +50,24 @@ type AgentActivity = {
   };
 };
 
+type AdminAnnouncement = {
+  id: string;
+  title: string;
+  message: string;
+  createdAt: string;
+  sender: { name: string };
+  reactions: Array<{ reaction: string }>;
+  _count: { reactions: number; reads: number };
+};
+
 export function AdminDashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [leaveDays, setLeaveDays] = useState<LeaveDay[]>([]);
   const [activities, setActivities] = useState<AgentActivity[]>([]);
+  const [announcements, setAnnouncements] = useState<AdminAnnouncement[]>([]);
+  const [announcementForm, setAnnouncementForm] = useState({ title: "", message: "" });
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "", jobRole: "" as AgentJobRole | "" });
   const [selectedAgentId, setSelectedAgentId] = useState("");
   const [leaveDate, setLeaveDate] = useState(() => {
@@ -85,6 +98,11 @@ export function AdminDashboard() {
           headers: { Accept: "application/json" },
         }),
       ]);
+      const announcementsResponse = await fetch("/api/notifications", {
+        credentials: "include",
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
       const [data, activityData] = await Promise.all([
         readApiResponse<{
           agents: Agent[];
@@ -93,11 +111,13 @@ export function AdminDashboard() {
         }>(response),
         readApiResponse<{ activities: AgentActivity[] }>(activityResponse),
       ]);
+      const announcementsData = await readApiResponse<{ announcements: AdminAnnouncement[] }>(announcementsResponse);
 
       setAgents(data.agents);
       setAttendance(data.attendance);
       setLeaveDays(data.leaveDays);
       setActivities(activityData.activities);
+      setAnnouncements(announcementsData.announcements);
       if (!selectedAgentId || !data.agents.some((agent) => agent.id === selectedAgentId && agent.isActive)) {
         setSelectedAgentId(data.agents.find((agent) => agent.isActive)?.id ?? "");
       }
@@ -225,6 +245,30 @@ export function AdminDashboard() {
       setError(err instanceof Error ? err.message : "Could not record time off.");
     } finally {
       setSavingLeave(false);
+    }
+  }
+
+  async function handleCreateAnnouncement(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+    setSavingAnnouncement(true);
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(announcementForm),
+      });
+      const data = await readApiResponse<{ message: string }>(response);
+      setAnnouncementForm({ title: "", message: "" });
+      setSuccess(data.message);
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send announcement.");
+    } finally {
+      setSavingAnnouncement(false);
     }
   }
 
@@ -389,6 +433,48 @@ export function AdminDashboard() {
             </button>
           </div>
         </div>
+      </section>
+
+      <section className="panel admin-announcements-panel">
+        <div className="agent-section-heading">
+          <div><p className="eyebrow">Visible to all active agents</p><h2>Send an announcement</h2></div>
+        </div>
+        <form className="stack-form admin-announcement-form" onSubmit={handleCreateAnnouncement}>
+          <label>
+            Title
+            <input
+              value={announcementForm.title}
+              onChange={(event) => setAnnouncementForm({ ...announcementForm, title: event.target.value })}
+              maxLength={120}
+              required
+            />
+          </label>
+          <label>
+            Message
+            <textarea
+              value={announcementForm.message}
+              onChange={(event) => setAnnouncementForm({ ...announcementForm, message: event.target.value })}
+              maxLength={2000}
+              rows={3}
+              required
+            />
+          </label>
+          <button className="primary-btn" type="submit" disabled={savingAnnouncement}>
+            {savingAnnouncement ? "Sending…" : "Send to agents"}
+          </button>
+        </form>
+        {announcements.length ? (
+          <div className="admin-announcement-history">
+            <h3>Recent announcements</h3>
+            {announcements.slice(0, 5).map((announcement) => (
+              <article key={announcement.id}>
+                <div><strong>{announcement.title}</strong><time>{new Date(announcement.createdAt).toLocaleString()}</time></div>
+                <p>{announcement.message}</p>
+                <small>{announcement._count.reads} reads · {announcement._count.reactions} reactions</small>
+              </article>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       {error ? <p className="error-text" role="alert">{error}</p> : null}

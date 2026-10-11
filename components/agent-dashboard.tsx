@@ -106,6 +106,7 @@ export function AgentDashboard({
   const [loadingTeamActivities, setLoadingTeamActivities] = useState(false);
   const [activePage, setActivePage] = useState<"dashboard" | "activities" | "team" | "profile" | "notifications" | "messages" | "reports">("dashboard");
   const [profileName, setProfileName] = useState(user.name);
+  const [savedProfileName, setSavedProfileName] = useState(user.name);
   const [savingProfile, setSavingProfile] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
@@ -231,6 +232,7 @@ export function AgentDashboard({
       });
       const data = await readApiResponse<{ user: { name: string }; message: string }>(response);
       setProfileName(data.user.name);
+      setSavedProfileName(data.user.name);
       setMessage(data.message);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update your profile");
@@ -302,7 +304,23 @@ export function AgentDashboard({
       const response = await fetch("/api/messages", { credentials: "include", cache: "no-store" });
       const data = await readApiResponse<{ agents: ChatAgent[] }>(response);
       setChatAgents(data.agents);
-      if (!selectedChatAgent && data.agents.length) setSelectedChatAgent(data.agents[0].id);
+      const targetId = data.agents.some((agent) => agent.id === selectedChatAgent)
+        ? selectedChatAgent
+        : data.agents[0]?.id;
+      setSelectedChatAgent(targetId ?? "");
+      if (targetId) {
+        const conversationResponse = await fetch(`/api/messages?with=${encodeURIComponent(targetId)}`, {
+          credentials: "include",
+          cache: "no-store",
+        });
+        const conversationData = await readApiResponse<{ messages: ChatMessage[] }>(conversationResponse);
+        setChatMessages(conversationData.messages);
+        setChatAgents(data.agents.map((agent) => (
+          agent.id === targetId ? { ...agent, unreadCount: 0 } : agent
+        )));
+      } else {
+        setChatMessages([]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load messages");
     } finally {
@@ -322,6 +340,9 @@ export function AgentDashboard({
       });
       const data = await readApiResponse<{ messages: ChatMessage[] }>(response);
       setChatMessages(data.messages);
+      setChatAgents((agents) => agents.map((agent) => (
+        agent.id === agentId ? { ...agent, unreadCount: 0 } : agent
+      )));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load this conversation");
     } finally {
@@ -456,7 +477,7 @@ export function AgentDashboard({
     window.location.href = "/login";
   }
 
-  const firstName = user.name.trim().split(/\s+/)[0] || user.name;
+  const firstName = profileName.trim().split(/\s+/)[0] || profileName;
 
   return (
     <main className="agent-layout">
@@ -772,12 +793,15 @@ export function AgentDashboard({
               )}
             </section>
           </div>
-        ) : (
+        ) : activePage === "team" ? (
           <section className="panel agent-team-panel">
             <div className="agent-section-heading agent-team-heading">
               <div>
-                <p className="eyebrow">Shared with your team</p>
-                <h2>What everyone is working on</h2>
+                <p className="eyebrow">Your responsibility group</p>
+                <h2>{getAgentJobRoleLabel(jobRole)}</h2>
+                <p className="agent-team-description">
+                  Your assigned role is your team. Browse team members and their shared activity updates below.
+                </p>
               </div>
               <label className="agent-team-month">
                 <span>Month</span>
@@ -885,6 +909,177 @@ export function AgentDashboard({
               </div>
             )}
             <p className="agent-team-note">Activity totals and category counts update for the selected month.</p>
+          </section>
+        ) : activePage === "profile" ? (
+          <section className="panel agent-profile-editor">
+            <div className="agent-section-heading">
+              <div><p className="eyebrow">Your account</p><h2>Profile settings</h2></div>
+            </div>
+            <div className="agent-profile-editor-card">
+              <button
+                className="agent-profile-editor-avatar"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                aria-label="Change profile photo"
+              >
+                {profileImageUrl ? <img src={profileImageUrl} alt="" /> : getInitials(profileName)}
+              </button>
+              <div>
+                <strong>Profile picture</strong>
+                <p>Use a JPEG, PNG, or WebP image up to 1 MB.</p>
+                <button className="agent-text-btn" type="button" onClick={() => fileInputRef.current?.click()}>
+                  {uploadingImage ? "Uploading…" : "Choose a photo"}
+                </button>
+              </div>
+            </div>
+            <form className="stack-form agent-profile-name-form" onSubmit={saveProfile}>
+              <label>
+                Display name
+                <input
+                  value={profileName}
+                  onChange={(event) => setProfileName(event.target.value)}
+                  maxLength={80}
+                  required
+                />
+              </label>
+              <label>
+                Email
+                <input value={user.email} readOnly />
+              </label>
+              <button className="primary-btn" type="submit" disabled={savingProfile || profileName.trim() === savedProfileName}>
+                {savingProfile ? "Saving…" : "Save profile"}
+              </button>
+            </form>
+          </section>
+        ) : activePage === "notifications" ? (
+          <section className="panel agent-notifications">
+            <div className="agent-section-heading">
+              <div><p className="eyebrow">Updates from your administrator</p><h2>Announcements</h2></div>
+            </div>
+            {announcements.length === 0 ? (
+              <p className="agent-empty-state">There are no announcements yet.</p>
+            ) : announcements.map((announcement) => (
+              <article className="agent-announcement-card" key={announcement.id}>
+                <div className="agent-announcement-heading">
+                  <div><h3>{announcement.title}</h3><span>From {announcement.sender.name}</span></div>
+                  <time>{new Date(announcement.createdAt).toLocaleString()}</time>
+                </div>
+                <p>{announcement.message}</p>
+                <div className="agent-reaction-list" aria-label="React to announcement">
+                  {announcement.reactions.map(({ reaction, count }) => (
+                    <button
+                      type="button"
+                      key={reaction}
+                      className={announcement.ownReaction === reaction ? "agent-reaction active" : "agent-reaction"}
+                      onClick={() => reactToAnnouncement(announcement.id, reaction)}
+                      aria-pressed={announcement.ownReaction === reaction}
+                    >
+                      {reaction} <span>{count}</span>
+                    </button>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </section>
+        ) : activePage === "reports" ? (
+          <div className="agent-report-page">
+            <section className="panel">
+              <div className="agent-section-heading">
+                <div><p className="eyebrow">Your recorded work only</p><h2>Activity report</h2></div>
+                <div className="agent-report-controls">
+                  <label>
+                    Period
+                    <select
+                      value={reportPeriod}
+                      onChange={(event) => setReportPeriod(event.target.value as "week" | "month")}
+                    >
+                      <option value="week">Week</option>
+                      <option value="month">Month</option>
+                    </select>
+                  </label>
+                  <label>
+                    Reference date
+                    <input type="date" value={reportDate} onChange={(event) => setReportDate(event.target.value)} />
+                  </label>
+                  <button className="primary-btn" type="button" onClick={() => loadPersonalReport()} disabled={loadingReport}>
+                    {loadingReport ? "Loading…" : "View report"}
+                  </button>
+                </div>
+              </div>
+              {personalReport ? (
+                <>
+                  <p className="agent-report-range">{personalReport.start} — {personalReport.end}</p>
+                  <div className="agent-report-totals">
+                    {Object.entries(personalReport.totals).map(([title, count]) => (
+                      <div key={title}><span>{title}</span><strong>{count}</strong></div>
+                    ))}
+                    {Object.keys(personalReport.totals).length === 0 ? <p>No activity was logged in this period.</p> : null}
+                  </div>
+                  <div className="agent-activity-list">
+                    {personalReport.activities.map((activity) => (
+                      <article className="agent-activity-item" key={activity.id}>
+                        <span className="agent-activity-dot" aria-hidden="true" />
+                        <div>
+                          <div className="agent-activity-title-row"><strong>{activity.title}</strong><time>{activity.date}</time></div>
+                          {activity.details ? <p>{activity.details}</p> : null}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              ) : <p className="agent-empty-state">Choose a week or month to view your activity report.</p>}
+            </section>
+          </div>
+        ) : (
+          <section className="agent-chat-layout">
+            <aside className="panel agent-chat-contacts">
+              <div className="agent-section-heading"><div><p className="eyebrow">Direct messages</p><h2>Agents</h2></div></div>
+              {loadingChat && chatAgents.length === 0 ? <p className="agent-empty-state">Loading agents…</p> : null}
+              {chatAgents.length === 0 && !loadingChat ? <p className="agent-empty-state">No other active agents are available.</p> : null}
+              {chatAgents.map((agent) => (
+                <button
+                  className={selectedChatAgent === agent.id ? "agent-chat-contact active" : "agent-chat-contact"}
+                  type="button"
+                  key={agent.id}
+                  onClick={() => loadConversation(agent.id)}
+                >
+                  <span><strong>{agent.name}</strong><small>{getAgentJobRoleLabel(agent.jobRole)}</small></span>
+                  {agent.unreadCount > 0 ? <b>{agent.unreadCount}</b> : null}
+                  {agent.lastMessage ? <small className="agent-chat-preview">{agent.lastMessage.body}</small> : null}
+                </button>
+              ))}
+            </aside>
+            <div className="panel agent-chat-conversation">
+              <div className="agent-section-heading">
+                <div>
+                  <p className="eyebrow">Private conversation</p>
+                  <h2>{chatAgents.find((agent) => agent.id === selectedChatAgent)?.name ?? "Choose an agent"}</h2>
+                </div>
+              </div>
+              <div className="agent-chat-messages" aria-live="polite">
+                {chatMessages.map((chatMessage) => (
+                  <article className={chatMessage.senderId === user.userId ? "agent-chat-bubble own" : "agent-chat-bubble"} key={chatMessage.id}>
+                    <p>{chatMessage.body}</p><time>{new Date(chatMessage.createdAt).toLocaleString()}</time>
+                  </article>
+                ))}
+                {!chatMessages.length && selectedChatAgent ? <p className="agent-empty-state">Start the conversation with a message.</p> : null}
+                {loadingChat ? <p className="agent-empty-state">Loading conversation…</p> : null}
+              </div>
+              <form className="agent-chat-compose" onSubmit={sendChatMessage}>
+                <input
+                  value={chatDraft}
+                  onChange={(event) => setChatDraft(event.target.value)}
+                  maxLength={2000}
+                  placeholder="Write a message…"
+                  aria-label="Message"
+                  disabled={!selectedChatAgent || sendingChat}
+                />
+                <button className="primary-btn" type="submit" disabled={!selectedChatAgent || !chatDraft.trim() || sendingChat}>
+                  {sendingChat ? "Sending…" : "Send"}
+                </button>
+              </form>
+            </div>
           </section>
         )}
       </div>

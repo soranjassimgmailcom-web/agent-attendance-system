@@ -24,6 +24,10 @@ export async function GET() {
     return NextResponse.json({ announcements, unreadCount: 0 });
   }
 
+  if (session.role !== "AGENT") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
   const [announcements, reads] = await Promise.all([
     prisma.announcement.findMany({
       orderBy: { createdAt: "desc" },
@@ -133,7 +137,7 @@ export async function PATCH(request: Request) {
     typeof reactionRequest.announcementId !== "string" ||
     !reactionRequest.announcementId ||
     typeof reactionRequest.reaction !== "string" ||
-    !allowedReactions.includes(reactionRequest.reaction as (typeof allowedReactions)[number])
+    !allowedReactions.some((allowedReaction) => allowedReaction === reactionRequest.reaction)
   ) {
     return NextResponse.json({ error: "Choose a valid announcement and reaction" }, { status: 400 });
   }
@@ -187,15 +191,27 @@ export async function PUT(request: Request) {
     typeof body === "object" && body !== null
       ? (body as { announcementIds?: unknown }).announcementIds
       : undefined;
+  const validIds = Array.isArray(ids)
+    ? ids.filter((id): id is string => typeof id === "string")
+    : [];
 
-  if (!Array.isArray(ids) || ids.length > 100 || ids.some((id) => typeof id !== "string")) {
+  if (!Array.isArray(ids) || ids.length > 100 || validIds.length !== ids.length) {
     return NextResponse.json({ error: "Provide a valid list of announcement IDs" }, { status: 400 });
   }
 
-  if (ids.length > 0) {
+  if (validIds.length > 0) {
+    const uniqueIds = [...new Set(validIds)];
+    const existing = await prisma.announcement.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true },
+    });
+    if (existing.length !== uniqueIds.length) {
+      return NextResponse.json({ error: "One or more announcements could not be found" }, { status: 404 });
+    }
+
     await prisma.announcementRead.createMany({
-      data: [...new Set(ids)].map((announcementId) => ({
-        announcementId: announcementId as string,
+      data: uniqueIds.map((announcementId) => ({
+        announcementId,
         userId: session.userId,
       })),
       skipDuplicates: true,
