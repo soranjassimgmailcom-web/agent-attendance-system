@@ -21,7 +21,6 @@ type LeaveDay = {
     id: string;
     name: string;
     email: string;
-    jobRole: AgentJobRole;
   };
 };
 
@@ -47,6 +46,7 @@ type AgentActivity = {
     id: string;
     name: string;
     email: string;
+    jobRole: AgentJobRole;
   };
 };
 
@@ -146,32 +146,6 @@ export function AdminDashboard() {
       return;
     }
 
-    async function handleAssignRole(agent: Agent, jobRole: AgentJobRole) {
-      setError("");
-      setSuccess("");
-      setBusyAgentId(agent.id);
-
-      try {
-        const response = await fetch(`/api/admin/agents/${agent.id}`, {
-          method: "PATCH",
-          credentials: "include",
-          cache: "no-store",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ jobRole }),
-        });
-        const data = await readApiResponse<{ message: string }>(response);
-        setSuccess(data.message);
-        await loadData();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not assign the agent role.");
-      } finally {
-        setBusyAgentId("");
-      }
-    }
-
     setError("");
     setSuccess("");
     setBusyAgentId(agent.id);
@@ -192,6 +166,32 @@ export function AdminDashboard() {
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update agent account.");
+    } finally {
+      setBusyAgentId("");
+    }
+  }
+
+  async function handleAssignRole(agent: Agent, jobRole: AgentJobRole) {
+    setError("");
+    setSuccess("");
+    setBusyAgentId(agent.id);
+
+    try {
+      const response = await fetch(`/api/admin/agents/${agent.id}`, {
+        method: "PATCH",
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ jobRole }),
+      });
+      const data = await readApiResponse<{ message: string }>(response);
+      setSuccess(data.message);
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not assign the agent role.");
     } finally {
       setBusyAgentId("");
     }
