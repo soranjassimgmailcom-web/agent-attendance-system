@@ -10,6 +10,7 @@ Project System is an attendance and reporting application for teams to check in,
 - Admin-managed vacation and authorized-absence records by date
 - Agent deactivation/reactivation that preserves attendance and time-off history
 - Agent dashboard with a personal activity log and profile-picture upload
+- Agent-only shared team activity feed with role-colored activity cards
 - Admin activity overview and monthly Excel reports for attendance, salary, and agent activity
 - Simple project branding and dashboard experience
 

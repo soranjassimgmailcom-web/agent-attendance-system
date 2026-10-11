@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { readApiResponse } from "@/lib/client-api";
-import { activityCategories, AgentJobRole, getAgentJobRoleLabel } from "@/lib/agent-roles";
+import {
+  activityCategories,
+  AgentJobRole,
+  agentJobRoles,
+  getAgentJobRoleLabel,
+} from "@/lib/agent-roles";
 
 type AttendanceEntry = {
   id: string;

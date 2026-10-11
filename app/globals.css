@@ -1000,6 +1000,247 @@ th {
   font-weight: 400;
 }
 
+.agent-team-panel {
+  min-width: 0;
+}
+
+.agent-team-heading {
+  align-items: flex-end;
+}
+
+.agent-team-month {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 5px;
+  color: #788497;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.agent-team-month input {
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid #dce2eb;
+  border-radius: 7px;
+  color: #263245;
+  background: #fff;
+  font: inherit;
+  font-weight: 400;
+}
+
+.agent-team-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.agent-filter-chip {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid #e2e7ef;
+  border-radius: 22px;
+  color: #526075;
+  background: #fff;
+  font-size: 0.83rem;
+  font-weight: 600;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.agent-filter-chip:hover {
+  transform: translateY(-1px);
+  border-color: #bfcce4;
+  background: #f7f9fc;
+}
+
+.agent-filter-chip.active {
+  border-color: var(--agent-blue);
+  color: #fff;
+  background: var(--agent-blue);
+}
+
+.agent-filter-chip.role-reception {
+  --role-color: #a35a10;
+  --role-soft: #fff2df;
+}
+
+.agent-filter-chip.role-info_desk_audit {
+  --role-color: #7044b8;
+  --role-soft: #f1eaff;
+}
+
+.agent-filter-chip.role-warehouse {
+  --role-color: #16805c;
+  --role-soft: #e4f7ee;
+}
+
+.agent-filter-chip.role-scan {
+  --role-color: #1767a5;
+  --role-soft: #e4f2ff;
+}
+
+.agent-filter-chip.role-treasury {
+  --role-color: #aa4569;
+  --role-soft: #ffeaf1;
+}
+
+.agent-filter-chip.role-center_technical {
+  --role-color: #4651b8;
+  --role-soft: #ebedff;
+}
+
+.agent-filter-chip.role-simulation_estimation {
+  --role-color: #637c21;
+  --role-soft: #f1f7df;
+}
+
+.agent-filter-chip[class*="role-"]:not(.active) {
+  border-color: color-mix(in srgb, var(--role-color) 24%, white);
+  color: var(--role-color);
+  background: var(--role-soft);
+}
+
+.agent-filter-chip[class*="role-"]:not(.active):hover {
+  border-color: var(--role-color);
+}
+
+.agent-team-activity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.agent-team-activity-card {
+  --role-color: #526075;
+  --role-soft: #f0f3f8;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e7ebf1;
+  border-top: 3px solid var(--role-color);
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(30, 50, 80, 0.035);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.agent-team-activity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 22px rgba(30, 50, 80, 0.08);
+}
+
+.agent-team-activity-card.role-reception {
+  --role-color: #a35a10;
+  --role-soft: #fff2df;
+}
+
+.agent-team-activity-card.role-info_desk_audit {
+  --role-color: #7044b8;
+  --role-soft: #f1eaff;
+}
+
+.agent-team-activity-card.role-warehouse {
+  --role-color: #16805c;
+  --role-soft: #e4f7ee;
+}
+
+.agent-team-activity-card.role-scan {
+  --role-color: #1767a5;
+  --role-soft: #e4f2ff;
+}
+
+.agent-team-activity-card.role-treasury {
+  --role-color: #aa4569;
+  --role-soft: #ffeaf1;
+}
+
+.agent-team-activity-card.role-center_technical {
+  --role-color: #4651b8;
+  --role-soft: #ebedff;
+}
+
+.agent-team-activity-card.role-simulation_estimation {
+  --role-color: #637c21;
+  --role-soft: #f1f7df;
+}
+
+.agent-team-card-top {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.agent-team-avatar {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--role-color);
+  background: var(--role-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.agent-team-person {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.agent-team-person strong {
+  overflow: hidden;
+  color: #263245;
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-team-person span {
+  overflow: hidden;
+  color: #8390a1;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-team-card-top time {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: #8390a1;
+  font-size: 0.75rem;
+}
+
+.agent-activity-category {
+  width: fit-content;
+  max-width: 100%;
+  display: block;
+  margin-top: 16px;
+  padding: 7px 11px;
+  overflow-wrap: anywhere;
+  border-radius: 20px;
+  color: var(--role-color);
+  background: var(--role-soft);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.agent-team-activity-card > p {
+  margin: 12px 0 0;
+  color: #667386;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.agent-team-note {
+  margin: 18px 0 0;
+  color: #8a95a5;
+  font-size: 0.76rem;
+}
+
 @media (max-width: 900px) {
   .agent-layout {
     grid-template-columns: 220px minmax(0, 1fr);
@@ -1076,6 +1317,10 @@ th {
   }
 
   .agent-activities-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agent-team-activity-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
