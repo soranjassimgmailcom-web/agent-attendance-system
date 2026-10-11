@@ -63,6 +63,8 @@ Admins can deactivate an agent account without deleting its history, and reactiv
 
 Agents can add dated activity entries with optional notes from the **My Activities** page. Administrators can review these entries in the selected month and download an Excel report. Agents can also upload their own JPEG, PNG, or WebP profile picture (up to 1 MB); it is stored in PostgreSQL with the agent account.
 
+Administrators assign each agent one responsibility role: Reception, Info Desk and Audit, Warehouse, Scan, Treasury, Center Technical, or Simulation and Estimation. The agent activity form only offers the categories defined for that role, and the server validates every submitted category against the agent's current assignment.
+
 ## Deploy to Vercel
 
 1. Connect this GitHub repository to Vercel and add a Neon PostgreSQL database, or connect an existing PostgreSQL database.

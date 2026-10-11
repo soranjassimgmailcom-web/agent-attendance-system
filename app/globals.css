@@ -980,7 +980,8 @@ th {
 }
 
 .agent-activity-form-panel input,
-.agent-activity-form-panel textarea {
+.agent-activity-form-panel textarea,
+.agent-activity-form-panel select {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #dce2eb;

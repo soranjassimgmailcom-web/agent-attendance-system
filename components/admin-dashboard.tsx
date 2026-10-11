@@ -420,7 +420,11 @@ export function AdminDashboard() {
                       disabled={busyAgentId === agent.id}
                     >
                       {agentJobRoles.map((jobRole) => (
-                        <option key={jobRole.value} value={jobRole.value}>
+                        <option
+                          key={jobRole.value}
+                          value={jobRole.value}
+                          disabled={jobRole.value === "UNASSIGNED"}
+                        >
                           {jobRole.value === "UNASSIGNED" ? "Assign a role" : jobRole.label}
                         </option>
                       ))}
