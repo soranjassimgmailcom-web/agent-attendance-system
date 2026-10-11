@@ -65,7 +65,6 @@ export function AgentDashboard({
   const [teamMonth, setTeamMonth] = useState(() => getLocalDate().slice(0, 7));
   const [teamRoleFilter, setTeamRoleFilter] = useState<AgentJobRole | "ALL">("ALL");
   const [loadingTeamActivities, setLoadingTeamActivities] = useState(false);
-  const [teamActivitiesLoaded, setTeamActivitiesLoaded] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -189,7 +188,6 @@ export function AgentDashboard({
       });
       const data = await readApiResponse<{ agents: TeamAgent[] }>(response);
       setTeamAgents(data.agents);
-      setTeamActivitiesLoaded(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load team activities");
     } finally {
