@@ -35,8 +35,48 @@ type TeamAgent = {
   recentActivities: AgentActivity[];
 };
 
+type Announcement = {
+  id: string;
+  title: string;
+  message: string;
+  createdAt: string;
+  sender: { name: string };
+  ownReaction?: string | null;
+  reactions: Array<{ reaction: string; count: number }>;
+};
+
+type ChatAgent = {
+  id: string;
+  name: string;
+  jobRole: AgentJobRole;
+  lastMessage: {
+    body: string;
+    createdAt: string;
+    senderId: string;
+  } | null;
+  unreadCount: number;
+};
+
+type ChatMessage = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  body: string;
+  createdAt: string;
+};
+
+type PersonalReport = {
+  start: string;
+  end: string;
+  activities: AgentActivity[];
+  totals: Record<string, number>;
+};
+
+const reactionOptions = ["👍", "❤️", "🎉", "🙏"];
+
 function getLocalDate() {
-  return new Date().toISOString().slice(0, 10);
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 }
 
 function getInitials(name: string) {
@@ -59,12 +99,28 @@ export function AgentDashboard({
   const [activities, setActivities] = useState<AgentActivity[]>([]);
   const [jobRole, setJobRole] = useState<AgentJobRole>("UNASSIGNED");
   const [activityMonthCount, setActivityMonthCount] = useState(0);
-  const [activePage, setActivePage] = useState<"dashboard" | "activities" | "team">("dashboard");
   const [activityForm, setActivityForm] = useState({ date: getLocalDate(), title: "", details: "" });
   const [teamAgents, setTeamAgents] = useState<TeamAgent[]>([]);
   const [teamMonth, setTeamMonth] = useState(() => getLocalDate().slice(0, 7));
   const [teamRoleFilter, setTeamRoleFilter] = useState<AgentJobRole | "ALL">("ALL");
   const [loadingTeamActivities, setLoadingTeamActivities] = useState(false);
+  const [activePage, setActivePage] = useState<"dashboard" | "activities" | "team" | "profile" | "notifications" | "messages" | "reports">("dashboard");
+  const [profileName, setProfileName] = useState(user.name);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
+  const [announcementForm, setAnnouncementForm] = useState({ title: "", message: "" });
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false);
+  const [reportPeriod, setReportPeriod] = useState<"week" | "month">("week");
+  const [reportDate, setReportDate] = useState(getLocalDate());
+  const [personalReport, setPersonalReport] = useState<PersonalReport | null>(null);
+  const [loadingReport, setLoadingReport] = useState(false);
+  const [chatAgents, setChatAgents] = useState<ChatAgent[]>([]);
+  const [selectedChatAgent, setSelectedChatAgent] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatDraft, setChatDraft] = useState("");
+  const [loadingChat, setLoadingChat] = useState(false);
+  const [sendingChat, setSendingChat] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -122,6 +178,7 @@ export function AgentDashboard({
 
   useEffect(() => {
     loadData();
+    loadNotifications(false);
     fetch("/api/agent/profile-image", { credentials: "include", cache: "no-store" })
       .then((response) => {
         if (response.ok) {
@@ -130,6 +187,167 @@ export function AgentDashboard({
       })
       .catch(() => setProfileImageUrl(""));
   }, []);
+
+  async function loadNotifications(markRead: boolean) {
+    const response = await fetch("/api/notifications", { credentials: "include", cache: "no-store" });
+    const data = await readApiResponse<{ announcements: Announcement[]; unreadCount: number }>(response);
+    setAnnouncements(data.announcements);
+    setUnreadAnnouncements(data.unreadCount);
+    if (markRead && data.announcements.length) {
+      const readResponse = await fetch("/api/notifications", {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ announcementIds: data.announcements.map((item) => item.id) }),
+      });
+      await readApiResponse<{ message: string }>(readResponse);
+      setUnreadAnnouncements(0);
+    }
+  }
+
+  async function openNotifications() {
+    setActivePage("notifications");
+    setError("");
+    try {
+      await loadNotifications(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load announcements");
+    }
+  }
+
+  async function saveProfile(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSavingProfile(true);
+    setError("");
+    setMessage("");
+    try {
+      const response = await fetch("/api/agent/profile", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ name: profileName }),
+      });
+      const data = await readApiResponse<{ user: { name: string }; message: string }>(response);
+      setProfileName(data.user.name);
+      setMessage(data.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update your profile");
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  async function saveAnnouncement(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSavingAnnouncement(true);
+    setError("");
+    setMessage("");
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(announcementForm),
+      });
+      const data = await readApiResponse<{ message: string }>(response);
+      setAnnouncementForm({ title: "", message: "" });
+      setMessage(data.message);
+      await loadNotifications(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send announcement");
+    } finally {
+      setSavingAnnouncement(false);
+    }
+  }
+
+  async function reactToAnnouncement(announcementId: string, reaction: string) {
+    setError("");
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ announcementId, reaction }),
+      });
+      await readApiResponse<{ message: string }>(response);
+      await loadNotifications(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save your reaction");
+    }
+  }
+
+  async function loadPersonalReport(period = reportPeriod, date = reportDate) {
+    setLoadingReport(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/agent/reports?period=${period}&date=${date}`, {
+        credentials: "include",
+        cache: "no-store",
+      });
+      const data = await readApiResponse<PersonalReport>(response);
+      setPersonalReport(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load your report");
+    } finally {
+      setLoadingReport(false);
+    }
+  }
+
+  async function loadChatList() {
+    setLoadingChat(true);
+    setError("");
+    try {
+      const response = await fetch("/api/messages", { credentials: "include", cache: "no-store" });
+      const data = await readApiResponse<{ agents: ChatAgent[] }>(response);
+      setChatAgents(data.agents);
+      if (!selectedChatAgent && data.agents.length) setSelectedChatAgent(data.agents[0].id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load messages");
+    } finally {
+      setLoadingChat(false);
+    }
+  }
+
+  async function loadConversation(agentId: string) {
+    if (!agentId) return;
+    setSelectedChatAgent(agentId);
+    setLoadingChat(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/messages?with=${encodeURIComponent(agentId)}`, {
+        credentials: "include",
+        cache: "no-store",
+      });
+      const data = await readApiResponse<{ messages: ChatMessage[] }>(response);
+      setChatMessages(data.messages);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load this conversation");
+    } finally {
+      setLoadingChat(false);
+    }
+  }
+
+  async function sendChatMessage(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedChatAgent || !chatDraft.trim()) return;
+    setSendingChat(true);
+    setError("");
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ receiverId: selectedChatAgent, body: chatDraft }),
+      });
+      await readApiResponse<{ message: ChatMessage }>(response);
+      setChatDraft("");
+      await Promise.all([loadConversation(selectedChatAgent), loadChatList()]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send your message");
+    } finally {
+      setSendingChat(false);
+    }
+  }
 
   async function handleAction(type: "check-in" | "check-out") {
     setLoading(true);
