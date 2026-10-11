@@ -16,31 +16,57 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Month must use YYYY-MM format" }, { status: 400 });
   }
 
-  const activities = await prisma.agentActivity.findMany({
-    where: {
-      date: { startsWith: month },
-      user: {
-        role: "AGENT",
-        isActive: true,
-      },
-    },
-    select: {
-      id: true,
-      date: true,
-      title: true,
-      details: true,
-      createdAt: true,
-      user: {
-        select: {
-          id: true,
-          name: true,
-          jobRole: true,
+  const [agents, categoryCounts] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: "AGENT", isActive: true },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        jobRole: true,
+        _count: {
+          select: {
+            activities: {
+              where: { date: { startsWith: month } },
+            },
+          },
+        },
+        activities: {
+          where: { date: { startsWith: month } },
+          orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+          take: 4,
+          select: {
+            id: true,
+            date: true,
+            title: true,
+            details: true,
+            createdAt: true,
+          },
         },
       },
-    },
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    take: 500,
-  });
+    }),
+    prisma.agentActivity.groupBy({
+      by: ["userId", "title"],
+      where: { date: { startsWith: month } },
+      _count: { _all: true },
+    }),
+  ]);
 
-  return NextResponse.json({ activities, month });
+  const countsByAgent = new Map<string, { title: string; count: number }[]>();
+  for (const entry of categoryCounts) {
+    const categories = countsByAgent.get(entry.userId) ?? [];
+    categories.push({ title: entry.title, count: entry._count._all });
+    countsByAgent.set(entry.userId, categories);
+  }
+
+  const team = agents.map((agent) => ({
+    id: agent.id,
+    name: agent.name,
+    jobRole: agent.jobRole,
+    activityCount: agent._count.activities,
+    categoryCounts: countsByAgent.get(agent.id) ?? [],
+    recentActivities: agent.activities,
+  }));
+
+  return NextResponse.json({ agents: team, month });
 }
