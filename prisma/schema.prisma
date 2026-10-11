@@ -13,18 +13,30 @@ enum LeaveType {
   AUTHORIZED_ABSENCE
 }
 
+enum AgentJobRole {
+  UNASSIGNED
+  RECEPTION
+  INFO_DESK_AUDIT
+  WAREHOUSE
+  SCAN
+  TREASURY
+  CENTER_TECHNICAL
+  SIMULATION_ESTIMATION
+}
+
 model User {
-  id         String       @id @default(cuid())
-  name       String
-  email      String       @unique
-  password   String
-  role       String       @default("AGENT")
-  isActive   Boolean      @default(true)
-  createdAt  DateTime     @default(now())
-  attendance Attendance[]
-  leaveDays  LeaveDay[]
-  activities AgentActivity[]
-  profileImage Bytes?
+  id               String       @id @default(cuid())
+  name             String
+  email            String       @unique
+  password         String
+  role             String       @default("AGENT")
+  jobRole          AgentJobRole @default(UNASSIGNED)
+  isActive         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  attendance       Attendance[]
+  leaveDays        LeaveDay[]
+  activities       AgentActivity[]
+  profileImage     Bytes?
   profileImageType String?
 }
 

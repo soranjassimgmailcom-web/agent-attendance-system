@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { isAgentJobRole } from "@/lib/agent-roles";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -26,6 +27,7 @@ export async function GET(request: Request) {
         name: true,
         email: true,
         role: true,
+        jobRole: true,
         isActive: true,
       },
     }),
@@ -75,15 +77,40 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const body = await request.json();
-  const { name, email, password } = body;
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+    throw error;
+  }
 
-  if (!name || !email || !password) {
-    return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 });
+  const agentRequest =
+    typeof body === "object" && body !== null
+      ? (body as { name?: unknown; email?: unknown; password?: unknown; jobRole?: unknown })
+      : null;
+  const { name, email, password, jobRole } = agentRequest ?? {};
+
+  if (
+    typeof name !== "string" ||
+    !name.trim() ||
+    typeof email !== "string" ||
+    !email.trim() ||
+    typeof password !== "string" ||
+    !password ||
+    !isAgentJobRole(jobRole) ||
+    jobRole === "UNASSIGNED"
+  ) {
+    return NextResponse.json(
+      { error: "Name, email, password, and an assigned agent role are required" },
+      { status: 400 }
+    );
   }
 
   const existing = await prisma.user.findUnique({
-    where: { email: String(email).toLowerCase() },
+    where: { email: email.toLowerCase() },
   });
 
   if (existing) {
@@ -94,16 +121,18 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.create({
     data: {
-      name: String(name),
-      email: String(email).toLowerCase(),
+      name: name.trim(),
+      email: email.toLowerCase(),
       password: hashedPassword,
       role: "AGENT",
+      jobRole,
     },
     select: {
       id: true,
       name: true,
       email: true,
       role: true,
+      jobRole: true,
     },
   });
 

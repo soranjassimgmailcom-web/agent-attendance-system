@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/auth";
+import { activityCategories, AgentJobRole } from "@/lib/agent-roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -18,7 +19,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const [activities, monthCount] = await Promise.all([
+  const [agent, activities, monthCount] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { jobRole: true },
+    }),
     prisma.agentActivity.findMany({
       where: { userId: session.userId },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
@@ -32,7 +37,7 @@ export async function GET() {
     }),
   ]);
 
-  return NextResponse.json({ activities, monthCount });
+  return NextResponse.json({ activities, monthCount, jobRole: agent?.jobRole ?? "UNASSIGNED" });
 }
 
 export async function POST(request: Request) {
@@ -71,6 +76,28 @@ export async function POST(request: Request) {
   ) {
     return NextResponse.json(
       { error: "Enter a valid activity date, a title up to 120 characters, and details up to 2,000 characters" },
+      { status: 400 }
+    );
+  }
+
+  const agent = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { jobRole: true },
+  });
+  const allowedCategories = agent
+    ? activityCategories[agent.jobRole as AgentJobRole]
+    : undefined;
+
+  if (!allowedCategories?.length) {
+    return NextResponse.json(
+      { error: "Your activity role has not been assigned. Please contact an administrator." },
+      { status: 409 }
+    );
+  }
+
+  if (!allowedCategories.includes(activity.title.trim())) {
+    return NextResponse.json(
+      { error: "Choose an activity category assigned to your role" },
       { status: 400 }
     );
   }
