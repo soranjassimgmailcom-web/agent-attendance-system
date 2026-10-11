@@ -9,7 +9,8 @@ Project System is an attendance and reporting application for teams to check in,
 - Attendance history for each user
 - Admin-managed vacation and authorized-absence records by date
 - Agent deactivation/reactivation that preserves attendance and time-off history
-- Monthly Excel exports for attendance and salary reports
+- Agent dashboard with a personal activity log and profile-picture upload
+- Admin activity overview and monthly Excel reports for attendance, salary, and agent activity
 - Simple project branding and dashboard experience
 
 ## Tech stack
@@ -59,6 +60,8 @@ Project System is an attendance and reporting application for teams to check in,
 The seed script requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `AGENT_EMAIL`, and `AGENT_PASSWORD`. Seeding an existing account updates its password to the configured value. The application also requires `AUTH_SECRET`; it does not fall back to a known default.
 
 Admins can deactivate an agent account without deleting its history, and reactivate it later. Admins can record a vacation or authorized absence for one date; that date appears in the agent dashboard and monthly Excel reports, and check-in is blocked for that date.
+
+Agents can add dated activity entries with optional notes from the **My Activities** page. Administrators can review these entries in the selected month and download an Excel report. Agents can also upload their own JPEG, PNG, or WebP profile picture (up to 1 MB); it is stored in PostgreSQL with the agent account.
 
 ## Deploy to Vercel
 
