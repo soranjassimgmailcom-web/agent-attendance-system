@@ -8,7 +8,7 @@ export default function HomePage() {
           <Image
             className="home-runaki-logo"
             src="/runaki-logo.png"
-            alt="Runaki logo"
+            alt="Bardarash Co logo"
             width={100}
             height={100}
             priority
@@ -16,9 +16,9 @@ export default function HomePage() {
         </header>
 
         <section className="hero-card home-hero">
-          <h1>Project System</h1>
+          <h1>Agent Audience - Bardarash Co</h1>
           <p className="subtitle">
-            One place for attendance tracking, daily updates, and monthly performance reports.
+            One place for attendance tracking, daily updates, team chat, and monthly performance reports.
           </p>
 
           <div className="hero-actions">
@@ -32,7 +32,7 @@ export default function HomePage() {
           </p>
         </section>
 
-        <footer className="landing-footer">Project System</footer>
+        <footer className="landing-footer">Agent Audience - Bardarash Co</footer>
       </div>
     </main>
   );
