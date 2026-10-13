@@ -528,3 +528,33 @@ td {
     padding: 28px 20px 24px;
   }
 }
+.team-chat-messages {
+  min-height: 420px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.team-chat-sender {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+}
+
+.team-chat-image {
+  display: block;
+  max-width: min(100%, 300px);
+  margin: 4px 0 6px;
+  border-radius: 12px;
+}
+
+.team-chat-attachment {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.agent-sidebar-brand span:last-child {
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
