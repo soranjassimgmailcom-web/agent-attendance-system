@@ -1,0 +1,530 @@
+/* ==========================================================
+   Agent Audience - Bardarash Co  |  White + Caramel theme
+   Loaded AFTER globals.css, so it overrides colors, type,
+   spacing and shadows. All existing class names still work.
+   ========================================================== */
+
+:root {
+  --ink: #2b1f16;
+  --muted: #7d6c5d;
+  --line: #eee3d6;
+  --canvas: #fffdfa;
+  --surface: #ffffff;
+  --accent: #b9772e;
+  --accent-dark: #94591b;
+  --accent-soft: #fbf1e3;
+  --caramel-deep: #7a4a16;
+  --caramel-light: #e3b072;
+  --shadow-soft: 0 1px 2px rgba(122, 74, 22, 0.05), 0 8px 24px rgba(122, 74, 22, 0.07);
+  --shadow-lift: 0 2px 4px rgba(122, 74, 22, 0.06), 0 16px 36px rgba(122, 74, 22, 0.13);
+}
+
+html,
+body {
+  font-family: var(--font-sans), "Segoe UI", Arial, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.reference-brand h1,
+.auth-card h1 {
+  font-family: var(--font-serif), Georgia, serif;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid rgba(185, 119, 46, 0.45);
+  outline-offset: 2px;
+}
+
+/* ---------- Buttons ---------- */
+.primary-btn,
+.reference-login-card .login-submit {
+  background: linear-gradient(135deg, var(--caramel-light) -30%, var(--accent) 45%, var(--accent-dark) 130%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 13px 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 6px 16px rgba(148, 89, 27, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.primary-btn:hover,
+.reference-login-card .login-submit:hover {
+  background: linear-gradient(135deg, var(--caramel-light) -30%, var(--accent) 45%, var(--accent-dark) 130%);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 22px rgba(148, 89, 27, 0.34);
+}
+
+.secondary-btn {
+  background: var(--accent-soft);
+  color: var(--caramel-deep);
+  border: 1px solid #f0dcc0;
+  border-radius: 12px;
+  padding: 13px 22px;
+}
+
+.secondary-btn:hover {
+  background: #f7e6cf;
+}
+
+/* ---------- Inputs ---------- */
+.auth-form input,
+.stack-form input,
+.panel input,
+.reference-login-card .auth-form input,
+.agent-activity-form-panel input,
+.agent-activity-form-panel textarea,
+.agent-activity-form-panel select,
+.agent-report-controls input,
+.agent-report-controls select,
+.agent-team-month input,
+.agent-chat-compose input {
+  border: 1.5px solid #eadbc8;
+  border-radius: 12px;
+  background: #fffefc;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-form input:focus,
+.stack-form input:focus,
+.panel input:focus,
+.reference-login-card .auth-form input:focus,
+.agent-chat-compose input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(185, 119, 46, 0.16);
+}
+
+/* ---------- Login page ---------- */
+.landing-page,
+.reference-login-page {
+  background-image:
+    radial-gradient(900px 520px at 12% -10%, rgba(227, 176, 114, 0.38), transparent 60%),
+    radial-gradient(800px 480px at 105% 110%, rgba(185, 119, 46, 0.22), transparent 60%),
+    linear-gradient(180deg, #fffdfa 0%, #fdf5ea 100%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.reference-brand-image {
+  width: 128px;
+  height: 128px;
+  padding: 10px;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--line);
+}
+
+.reference-brand h1 {
+  margin: 18px 0 6px;
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.reference-brand p {
+  color: var(--accent-dark);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.reference-login-card {
+  position: relative;
+  width: min(100%, 440px);
+  margin: 22px auto;
+  padding: 34px 30px 30px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #f0e2cf;
+  border-radius: 26px;
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+}
+
+.reference-login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--caramel-light), var(--accent), var(--accent-dark));
+}
+
+.reference-login-card h2 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 28px;
+  color: var(--ink);
+}
+
+.reference-login-copy {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.reference-login-card .auth-form label {
+  color: var(--caramel-deep);
+  font-size: 0.86rem;
+}
+
+.reference-login-card .login-submit {
+  margin-top: 8px;
+  padding: 14px 16px;
+}
+
+/* ---------- Generic cards and tables ---------- */
+.panel,
+.auth-card,
+.hero-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+th {
+  background: var(--accent-soft);
+  color: var(--caramel-deep);
+  font-size: 0.82rem;
+  text-transform: none;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---------- Dashboard shell (sidebar + main) ---------- */
+.agent-layout {
+  --agent-blue: var(--accent);
+  --agent-blue-soft: var(--accent-soft);
+  background: linear-gradient(180deg, #fffdfa 0%, #fcf6ec 100%);
+}
+
+.agent-sidebar {
+  background: #fff;
+  border-right: 1px solid var(--line);
+  box-shadow: 4px 0 24px rgba(122, 74, 22, 0.04);
+}
+
+.agent-sidebar-brand {
+  color: var(--ink);
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.agent-profile {
+  border-block: 1px solid var(--line);
+}
+
+.agent-avatar-button,
+.agent-profile-editor-avatar,
+.agent-brand-mark {
+  background: linear-gradient(135deg, var(--caramel-light), var(--accent-dark));
+}
+
+.agent-profile-info strong {
+  color: var(--ink);
+}
+
+.agent-profile-info span,
+.agent-sidebar-footer > span,
+.agent-nav-heading {
+  color: #a08c78;
+}
+
+.agent-nav-link,
+.agent-logout-btn {
+  min-height: 46px;
+  border-radius: 12px;
+  color: #5a4838;
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.agent-nav-link > span,
+.agent-logout-btn > span {
+  color: #a98a68;
+}
+
+.agent-nav-link:hover,
+.agent-logout-btn:hover {
+  background: var(--accent-soft);
+  color: var(--caramel-deep);
+}
+
+.agent-nav-link.active {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(148, 89, 27, 0.3);
+}
+
+.agent-nav-link.active > span {
+  color: #fff;
+}
+
+.agent-nav-badge {
+  background: #c2410c;
+}
+
+.agent-sidebar-footer {
+  border-top: 1px solid var(--line);
+}
+
+.agent-main {
+  padding-top: 40px;
+}
+
+.agent-page-header h1 {
+  font-size: clamp(1.9rem, 3.2vw, 2.5rem);
+}
+
+.agent-page-header .eyebrow,
+.agent-section-heading .eyebrow {
+  color: var(--accent-dark);
+}
+
+/* ---------- Stat cards ---------- */
+.agent-stat-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  padding: 22px;
+}
+
+.agent-stat-icon {
+  border-radius: 14px;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+}
+
+.agent-stat-card div > span {
+  color: var(--muted);
+}
+
+.agent-stat-card strong {
+  color: var(--ink);
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.4rem;
+}
+
+.agent-main > .panel,
+.agent-main .agent-activities-page > .panel {
+  border-color: var(--line);
+  box-shadow: var(--shadow-soft);
+}
+
+.agent-date-label {
+  color: var(--caramel-deep);
+  background: var(--accent-soft);
+}
+
+.agent-attendance-panel .primary-btn {
+  background: linear-gradient(135deg, var(--caramel-light) -30%, var(--accent) 45%, var(--accent-dark) 130%);
+}
+
+.agent-text-btn {
+  color: var(--accent-dark);
+}
+
+/* ---------- Activity list ---------- */
+.agent-activity-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.agent-activity-dot {
+  border-color: #f3dfc2;
+  background: var(--accent);
+}
+
+.agent-activity-title-row strong,
+.agent-team-name,
+.agent-team-total > div strong {
+  color: var(--ink);
+}
+
+.agent-activity-title-row time,
+.agent-team-recent time,
+.agent-announcement-heading span,
+.agent-announcement-heading time,
+.admin-announcement-history time,
+.admin-announcement-history small {
+  color: #9b8672;
+}
+
+.agent-activity-item p,
+.agent-empty-state,
+.agent-team-description,
+.agent-announcement-card > p {
+  color: #6b594a;
+}
+
+/* ---------- Team page ---------- */
+.agent-filter-chip {
+  border: 1px solid var(--line);
+  color: #6b594a;
+  background: #fff;
+}
+
+.agent-filter-chip:hover {
+  border-color: var(--caramel-light);
+  background: var(--accent-soft);
+}
+
+.agent-filter-chip.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.agent-team-activity-card {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.agent-team-activity-card:hover {
+  box-shadow: var(--shadow-lift);
+}
+
+.agent-team-card-profile,
+.agent-team-total {
+  border-bottom-color: var(--line);
+}
+
+.agent-team-recent {
+  background: #fdf8f1;
+}
+
+.agent-team-category-row {
+  border-bottom-color: #f5ece0;
+}
+
+.agent-team-panel .agent-empty-state {
+  border: 1px dashed #e8d6bf;
+  background: #fffaf3;
+}
+
+/* ---------- Notifications ---------- */
+.agent-announcement-card {
+  position: relative;
+  padding: 22px 22px 20px 26px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--accent);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.agent-reaction {
+  border: 1px solid #ecdcc6;
+  background: #fffdfa;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.agent-reaction:hover {
+  transform: translateY(-1px);
+  background: var(--accent-soft);
+}
+
+.agent-reaction.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.admin-announcement-history article {
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Team chat ---------- */
+.agent-chat-contact {
+  color: var(--ink);
+  border-radius: 14px;
+}
+
+.agent-chat-contact.active,
+.agent-chat-contact:hover {
+  background: var(--accent-soft);
+}
+
+.agent-chat-contact small {
+  color: #9b8672;
+}
+
+.agent-chat-contact b {
+  background: var(--accent);
+}
+
+.agent-chat-bubble {
+  background: #f8efe3;
+  color: var(--ink);
+  border-radius: 18px 18px 18px 5px;
+}
+
+.agent-chat-bubble.own {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: #fff;
+  border-radius: 18px 18px 5px 18px;
+}
+
+.agent-chat-compose {
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Activity report ---------- */
+.agent-report-controls label {
+  color: var(--muted);
+}
+
+.agent-report-range {
+  color: var(--caramel-deep);
+}
+
+.agent-report-totals > div {
+  background: var(--accent-soft);
+  border: 1px solid #f3e2c8;
+  color: var(--caramel-deep);
+}
+
+.agent-profile-editor-card {
+  border: 1px solid var(--line);
+  background: #fffaf3;
+  border-radius: 18px;
+}
+
+/* ---------- Messages ---------- */
+.error-text {
+  color: #b42318;
+}
+
+.success-text {
+  color: #3f7a3a;
+}
+
+.demo-box {
+  background: var(--accent-soft);
+  border: 1px solid #f0dcc0;
+}
+
+/* ---------- Respect reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .agent-sidebar {
+    box-shadow: 0 4px 18px rgba(122, 74, 22, 0.06);
+  }
+
+  .reference-login-card {
+    padding: 28px 20px 24px;
+  }
+}

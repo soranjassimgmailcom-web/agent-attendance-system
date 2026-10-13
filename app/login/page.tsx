@@ -9,12 +9,12 @@ export default function LoginPage() {
           <Image
             className="reference-brand-image"
             src="/runaki-logo.png"
-            alt="Runaki logo"
+            alt="Bardarash Co logo"
             width={140}
             height={140}
             priority
           />
-          <h1>Project System</h1>
+          <h1>Agent Audience - Bardarash Co</h1>
           <p>Attendance Management</p>
         </header>
 
