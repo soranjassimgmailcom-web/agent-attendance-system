@@ -482,10 +482,10 @@ export function AgentDashboard({
   return (
     <main className="agent-layout">
       <aside className="agent-sidebar">
-        <a className="agent-sidebar-brand" href="/agent" aria-label="Acc Agent dashboard">
-          <span className="agent-brand-mark" aria-hidden="true">A</span>
-          <span>Acc Agent</span>
-        </a>
+        <a className="agent-sidebar-brand" href="/agent" aria-label="Agent Audience - Bardarash Co dashboard">
+  <span className="agent-brand-mark" aria-hidden="true">B</span>
+  <span>Agent Audience - Bardarash Co</span>
+</a>
 
         <div className="agent-profile">
           <button
