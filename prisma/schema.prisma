@@ -22,9 +22,19 @@ enum AgentJobRole {
   TREASURY
   CENTER_TECHNICAL
   SIMULATION_ESTIMATION
+}model TeamMessage {
+  id        String   @id @default(cuid())
+  senderId  String
+  body      String   @default("")
+  imageData Bytes?
+  imageType String?
+  createdAt DateTime @default(now())
+  sender    User     @relation("TeamMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
 }
 
-model User {
+teamMessages     TeamMessage[] @relation("TeamMessageSender")
   id               String       @id @default(cuid())
   name             String
   email            String       @unique
