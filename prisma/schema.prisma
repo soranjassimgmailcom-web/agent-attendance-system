@@ -22,7 +22,9 @@ enum AgentJobRole {
   TREASURY
   CENTER_TECHNICAL
   SIMULATION_ESTIMATION
-}model TeamMessage {
+}
+
+model TeamMessage {
   id        String   @id @default(cuid())
   senderId  String
   body      String   @default("")
@@ -34,7 +36,8 @@ enum AgentJobRole {
   @@index([createdAt])
 }
 
-teamMessages     TeamMessage[] @relation("TeamMessageSender")
+model User {
+  teamMessages     TeamMessage[] @relation("TeamMessageSender")
   id               String       @id @default(cuid())
   name             String
   email            String       @unique
