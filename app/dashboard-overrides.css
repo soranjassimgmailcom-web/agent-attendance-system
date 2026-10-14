@@ -1,0 +1,18 @@
+/* Shared dashboard surface and theme treatment. */
+.agent-layout { background: var(--canvas-blue) !important; color: var(--ink-blue); }
+.agent-sidebar, .agent-main .panel, .agent-stat-card, .agent-team-activity-card, .agent-announcement-card, .agent-profile-editor-card { background: var(--surface-blue); border-color: var(--line-blue); color: var(--ink-blue); }
+.agent-sidebar { box-shadow: 8px 0 28px rgba(30, 78, 121, .08); }
+.agent-sidebar-brand, .agent-profile-info strong, .agent-page-header h1, .agent-stat-card strong, .agent-activity-title-row strong, .agent-team-name, .agent-team-total > div strong, .agent-chat-contact, .agent-chat-bubble { color: var(--ink-blue); }
+.agent-profile, .agent-sidebar-footer, .agent-activity-item, .agent-chat-compose { border-color: var(--line-blue); }
+.agent-nav-link, .agent-logout-btn { color: var(--muted-blue); }
+.agent-nav-link:hover, .agent-logout-btn:hover, .agent-chat-contact:hover, .agent-chat-contact.active { background: var(--blue-50); color: var(--blue-700); }
+.agent-nav-link.active { background: linear-gradient(135deg, var(--blue-500), var(--blue-700)); color: #fff; }
+.agent-stat-icon, .agent-date-label, .agent-team-recent, .agent-report-totals > div, .agent-chat-bubble { background: var(--blue-50); color: var(--blue-700); }
+.agent-chat-bubble.own { background: linear-gradient(135deg, var(--blue-500), var(--blue-700)); color: #fff; }
+.agent-announcement-card { border-left-color: var(--blue-500); }
+.agent-reaction { background: var(--surface-blue); border-color: var(--line-blue); }
+.agent-reaction:hover, .agent-reaction.active { background: var(--blue-50); border-color: #93c5fd; }
+.agent-text-btn, .agent-page-header .eyebrow, .agent-section-heading .eyebrow { color: var(--blue-600); }
+.agent-nav-badge { background: #ef4444; }
+.global-theme-control { position: fixed; top: 18px; right: 22px; z-index: 50; }
+@media (max-width: 760px) { .global-theme-control { top: 12px; right: 12px; } }

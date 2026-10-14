@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 enum LeaveType {
@@ -22,7 +21,9 @@ enum AgentJobRole {
   TREASURY
   CENTER_TECHNICAL
   SIMULATION_ESTIMATION
-}model TeamMessage {
+}
+
+model TeamMessage {
   id        String   @id @default(cuid())
   senderId  String
   body      String   @default("")
@@ -34,7 +35,8 @@ enum AgentJobRole {
   @@index([createdAt])
 }
 
-teamMessages     TeamMessage[] @relation("TeamMessageSender")
+model User {
+  teamMessages     TeamMessage[] @relation("TeamMessageSender")
   id               String       @id @default(cuid())
   name             String
   email            String       @unique
@@ -123,12 +125,12 @@ model AnnouncementReaction {
 }
 
 model AnnouncementRead {
-  id             String       @id @default(cuid())
+  id             String    @id @default(cuid())
   announcementId String
   userId         String
-  readAt         DateTime     @default(now())
+  readAt         DateTime @default(now())
   announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([announcementId, userId])
   @@index([userId, readAt])
